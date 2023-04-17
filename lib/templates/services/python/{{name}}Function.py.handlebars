@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+# @author {{project.author.forename}} {{project.author.surename}}
+# @email {{project.author.mail}}
+
+from nope import exportAsNopeService, getNopeLogger
+
+LOGGER = getNopeLogger("{{name}}Service")
+
+@exportAsNopeService({
+    "id": "{{name}}",
+    "schema": {},
+})
+async def {{name}}(greetings: str):
+    # Please overwrite me!
+    LOGGER.debug("calling service '{{name}}' with the following parameters:" + str(greetings))
+    return "Hello " + greetings + "!"

@@ -1,0 +1,10 @@
+[Unit]
+Description={{name}}
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/node {{pathFile}}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

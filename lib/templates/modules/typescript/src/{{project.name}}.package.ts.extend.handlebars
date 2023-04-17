@@ -1,0 +1,25 @@
+// Import the Service
+
+import { {{toModule name}} } from "./{{name}}.Module"
+
+TYPES["{{toModule name}}"]=Symbol.for("{{toModule name}}")
+
+// add the Service
+providedClasses.push({
+  description: {
+    name: {{toModule name}}.prototype.constructor.name.toString(),
+    selector: TYPES.{{toModule name}},
+    type: {{toModule name}},
+  },
+  settings: {
+    allowInstanceGeneration: true,
+  },
+  ui:{
+    async config(div,options){
+      // TODO: Implement a configuration view if required.
+      return {
+
+      }
+    },
+  }
+});

@@ -1,0 +1,73 @@
+// Automatic Genearted File for NopeModule
+// To update run `npm run build:backend` 
+
+import { INopeDispatcher } from "{{pathOfDispatcher}}";
+import { getMethodPath } from "{{pathOfHelper}}"
+import { Operation } from "express-openapi";
+
+export default function (_dispatcher: INopeDispatcher) {
+
+    let operations = {
+        {{mode}},
+        parameters: [
+        {
+            in: 'path',
+            name: 'instance',
+            description: 'Instance of the Type which should execute the Task',
+            required: true,
+            type: 'string'
+        }
+        ],
+    };
+
+    // Function to Parse the Inputs
+    const parseParams = (req) => {
+        return [{{#each schema.inputs}}req.body.{{name}}{{#unless @last}}, {{/unless}}{{/each}}]
+    }
+
+    // Define the Action.
+    async function {{mode}}(req, res, next) {
+        try {
+            // Transform the Operation to the Callback of the Dispatcher.
+            const result = await _dispatcher.performCall(getMethodPath(req.params.instance, '{{id}}'), parseParams(req))
+            // Finish the Task.
+            res.status(200).json(result)
+        } catch (e) {
+            // An error Occourd => 
+            res.status(500).json(e)
+        }        
+    }
+
+    // Define the apiDoc for this specific Funtion
+    {{mode}}.apiDoc = {
+        tags: ['{{tag}}'],
+        {{#if methodDescription}}summary: '{{methodDescription}}',{{/if}}
+        {{#if operationId}}operationId: '{{operationId}}',{{/if}}
+        parameters: [
+            {{#each schema.inputs}}
+            {
+                name: '{{name}}',
+                in: "body",
+                description: '{{description}}',
+                required: {{optional}},
+                schema: {{{parsedSchema}}}
+            
+            }{{#unless @last}},{{/unless}}
+            {{/each}}            
+        ],
+        responses: {
+            200: {
+                {{#if resultDescription}}description: '{{resultDescription}}',{{/if}}
+                schema: {{{parsedOutput}}}
+            },
+            default: {
+                description: 'An error occurred',
+                schema: {
+                    additionalProperties: true
+                }
+            }
+        }
+    } as Operation;
+
+    return operations;
+}

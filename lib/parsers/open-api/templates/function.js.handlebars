@@ -1,0 +1,63 @@
+// Automatic Genearted File for NopeModule
+// To update run `npm run build:backend` 
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+function default_1(_dispatcher) {
+    let operations = {
+        {{mode}}      
+    };
+    const parseParams = (req) => {
+        return [{{#each schema.inputs}}req.body.{{name}}{{#unless @last}}, {{/unless}}{{/each}}]
+    };
+    async function {{mode}}(req, res, next) {
+        try {
+            const result = await _dispatcher.performCall('{{id}}', parseParams(req));
+            res.status(200).json(result);
+        }
+        catch (e) {
+            res.status(500).json(e);
+        }
+    }
+    {{mode}}.apiDoc = {
+        tags: ['{{tag}}'],
+        {{#if methodDescription}}summary: '{{methodDescription}}',{{/if}}
+        {{#if operationId}}operationId: '{{operationId}}',{{/if}}
+        parameters: [
+            {{#each schema.inputs}}
+            {
+                name: '{{name}}',
+                in: "body",
+                description: '{{description}}',
+                required: {{optional}},
+                schema: {{{parsedSchema}}}
+            
+            }{{#unless @last}},{{/unless}}
+            {{/each}}     
+
+            schema: {
+                type: 'object',
+                properties: {
+                    {{#each schema.inputs}}
+                    {{name}}: {{{parsedSchema}}}{{#unless @last}},{{/unless}}
+                    {{/each}}
+                },
+                required: [{{#each required}}element{{#unless @last}},{{/unless}}{{/each}}]
+            }
+        ],
+        responses: {
+            200: {
+                {{#if resultDescription}}description: '{{resultDescription}}',{{/if}}
+                schema: {{{parsedOutput}}}
+            },
+            default: {
+                description: 'An error occurred',
+                schema: {
+                    additionalProperties: true
+                }
+            }
+        }
+    };
+    return operations;
+}
+exports.default = default_1;

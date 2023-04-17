@@ -1,0 +1,63 @@
+// Automatic Genearted File for NopeModule
+// To update run `npm run build:backend` 
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const dispatcherPathes_1 = require("{{pathOfHelper}}");
+function default_1(_dispatcher) {
+    let operations = {
+        {{mode}},
+        parameters: [
+            {
+                in: 'path',
+                name: 'instance',
+                description: 'Instance of the Type which should execute the Task',
+                required: true,
+                type: 'string'
+            }
+        ],
+    };
+    const parseParams = (req) => {
+         return [{{#each schema.inputs}}req.body.{{name}}{{#unless @last}}, {{/unless}}{{/each}}];
+    };
+    async function {{mode}}(req, res, next) {
+        try {
+            const result = await _dispatcher.performCall(dispatcherPathes_1.getMethodPath(req.params.instance, '{{id}}'), parseParams(req));
+            res.status(200).json(result);
+        }
+        catch (e) {
+            res.status(500).json(e);
+        }
+    }
+    {{mode}}.apiDoc = {
+        tags: ['{{tag}}'],
+        {{#if methodDescription}}summary: '{{methodDescription}}',{{/if}}
+        {{#if operationId}}operationId: '{{operationId}}',{{/if}}
+        parameters: [
+            {{#each schema.inputs}}
+            {
+                name: '{{name}}',
+                in: "body",
+                description: '{{description}}',
+                required: {{optional}},
+                schema: {{{parsedSchema}}}
+            
+            }{{#unless @last}},{{/unless}}
+            {{/each}}            
+        ],
+        responses: {
+            200: {
+                {{#if resultDescription}}description: '{{resultDescription}}',{{/if}}
+                schema: {{{parsedOutput}}}
+            },
+            default: {
+                description: 'An error occurred',
+                schema: {
+                    additionalProperties: true
+                }
+            }
+        }
+    };
+    return operations;
+}
+exports.default = default_1;

@@ -1,0 +1,21 @@
+const { readFileSync, writeFileSync } = require("fs");
+
+const version = readFileSync("./contribute/VERSION", { encoding: "utf-8" });
+const package = JSON.parse(readFileSync("./package.json", { encoding: "utf-8" }));
+
+package.description = "{{description}}";
+delete package.main;
+delete package.browser;
+delete package.bin;
+
+package.name = "{{underscore name}}_browser"
+package.browser = "build/{{name}}.js";
+package.main = "build/{{name}}.js";
+package.version = version;
+
+package.files = [
+  "build/**/*",
+  "dist-browser/**/*"
+];
+
+writeFileSync("./package.json", JSON.stringify(package, undefined, 2), { encoding: "utf-8" });

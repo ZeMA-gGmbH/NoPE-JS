@@ -1,0 +1,2 @@
+#! /usr/bin/env node
+require("../dist-nodejs/cli/nope").main().catch(console.error);

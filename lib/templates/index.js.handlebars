@@ -1,0 +1,29 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const path = require("path");
+const runNopeBackend = require("../../../dist/lib/cli/runNopeBackend");
+
+// A Service uses a File-Based Logger.
+const fileLoggerHelpers = require("../../../dist/lib/logger/fileLogging");
+const fileName = fileLoggerHelpers.generateLogfilePath("{{name}}");
+fileLoggerHelpers.useLogFile(fileName);
+
+if (require.main === module) {
+  process.on("unhandledRejection", (reason, p) => {
+    console.log("Unhandled Rejection at: Promise", p, "reason:", reason);
+    console.error(reason);
+    throw reason;
+  });
+  runNopeBackend
+    .runNopeBackend({
+      file: path.join(__dirname, "settings.json"),
+      channel: "{{layer}}",
+      log: "{{logLevel}}",
+      {{#if params}}
+      params: "{{params}}",
+      {{/if}}
+      defaultSelector: "dispatcher",
+      forceUsingSelectors: true
+    })
+    .catch(console.error);
+}

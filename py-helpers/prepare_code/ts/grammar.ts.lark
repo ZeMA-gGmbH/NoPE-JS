@@ -1,0 +1,505 @@
+%import common.WS
+%import common.DIGIT
+%import common.INT
+
+//--------------------------------------------------------------------------
+// JS-Ignorers:
+//--------------------------------------------------------------------------
+%ignore /\"use strict\";/
+%ignore /Object.defineProperty(exports, "__esModule", { value: true });/
+%ignore /var __(.|\n)*?};/
+%ignore /\w+ = __decorate(.|\n)*?\], \w+\);/
+%ignore /exports.\w+ = \w+;/
+type_of_function:      "void 0"
+//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
+
+
+MULTI_LINE_COMMENT: "/**" /(.|\n)*?/ "*/\n"
+COMMENT: "//" /.*/
+STR: /(`.*?`)|(".*?")|(\'.*?\')/ 
+%ignore MULTI_LINE_COMMENT
+%ignore COMMENT
+%ignore WS
+// Ignore Exports
+%ignore "export" "default" /w+/ ";"
+%ignore "export" "*" "from" STR ";"
+%ignore "export" "*" "as" /w+/ "from" STR  ";"
+%ignore "export" /(?<=export)(.|\n)+?(?=})/ "}" "from" STR ";"
+%ignore "export" /(?<=export)(.|\n)+?(?=})/ "}" ";"
+
+
+// --------------------------------------------------------------------------
+// Summary:
+// --------------------------------------------------------------------------
+
+start:                          statement+
+
+// we have to define, what is a valid return type
+
+ret_expr:                       id
+                                | str
+                                | str_multi_line
+                                | num
+                                | bool
+                                | null
+                                | undefined
+                                | instanceof
+                                | typeof
+                                | increment
+                                | decrement
+                                | invert
+                                | list
+                                | dict
+                                | descruct_dict
+                                | reassign
+                                | await_stmt
+                                | delete_stmt
+                                | reg_ex
+                                | throw_statement
+                                | sum
+                                | product
+                                | boolean_operation
+                                | accessor
+                                | function
+                                | arrow_function
+                                | function_call
+                                | inline_if
+                                | new_class                              
+                                | break_statement
+                                | continue_statement
+                                | ret_expr ("as" type)+
+                                | "(" ret_expr ")"
+                                | return_statement
+
+// Now we ar able to provide this expressions wiht a terminator.
+
+ret_expr_with_terminator:       ret_expr terminator
+                                
+return_statement:               "return" [ret_expr]                   
+
+statement:                      ret_expr_with_terminator
+                                | declare
+                                | declare_type
+                                | declare_var
+                                | declare_var_not_initialized
+                                | declare_var_descructed
+                                | import_stmt
+                                | for
+                                | while_statement
+                                | do_while
+                                | if_statement
+                                | switch
+                                | interface
+                                | class
+                                | decorated_class
+                                | function
+                                | try_catch
+
+
+// --------------------------------------------------------------------------
+// --------------------------------------------------------------------------
+
+// Default Terminator:
+terminator:                   ";"
+
+// Default ID:
+id:                           /[a-zA-Z_$][a-zA-Z0-9_$]*/ -> identifier
+
+
+// We define valid import statements:
+
+import_stmt:                  "import" str terminator -> import_stmt_all
+                              | "import" id "from" str terminator -> import_stmt_id
+                              | "import" "*" "as" id "from" str terminator -> import_stmt_as
+                              | "import" "{" import_names "}" "from" str terminator -> import_stmt_from
+
+// we may import multiple items:
+import_names:                 import_name ("," import_name)* [","]
+
+// The import name might include multiple lines
+import_name:                  id
+                              | id "as" id -> import_as_name
+                              | /\n/
+// Lets define a string;
+str:                          /(`.*?`)|(".*?")|(\'.*?\')/
+str_multi_line:               /(`(\\`|.|\n)*?`)/
+
+// Lets define a number;
+num:                          INT ["." INT] | "." INT
+
+// Define a boolean;
+bool:                         "false" | "true"
+
+null:                         "null"
+undefined:                    "undefined"
+
+increment:                    accessor "++" 
+                              | "++" accessor
+decrement:                    accessor "--"
+                              | "--" accessor
+
+invert:                       "!" ret_expr
+
+instanceof:                   id "instanceof" id_typed
+
+typeof:                       "typeof" accessor
+
+delete_stmt:                  "delete" accessor
+
+await_stmt:                   "await" ret_expr
+
+reg_ex:                       "/" /(?<=\/).+(?=\/\w)/ "/" [/\w/]
+
+?sum:                         product
+                              | sum "+" product -> add
+                              | sum "-" product -> sub
+                              | accessor "+=" product -> assigned_add
+                              | accessor "-=" product -> assigned_sub
+
+?product:                     atom
+                              | product "*" atom -> mult
+                              | product "/" atom -> div
+                              | accessor "*=" atom    -> assigned_mult
+                              | accessor "/=" atom    -> assigned_div
+
+boolean_operation:            boolean_input boolean_operator boolean_input                          
+
+boolean_operator:             ">"       -> bool_op_gt
+                              | "<"     -> bool_op_lt
+                              | "<="    -> bool_op_lte
+                              | ">="    -> bool_op_gte
+                              | "=="    -> bool_op_eq
+                              | "==="   -> bool_op_eq
+                              | "!="    -> bool_op_not_eq
+                              | "!=="   -> bool_op_not_eq
+                              | "&&"    -> bool_op_and
+                              | "||"    -> bool_op_or
+                              | "in"    -> bool_op_in
+
+boolean_input:                ret_expr
+
+?atom:                        ret_expr
+                              | id
+                              | "-" atom -> negative_types_repr
+                              | "(" sum ")"
+
+// Define Lists.        
+list:                           "[" [list_items] "]"
+list_items:                     (list_item [","])+
+list_item:                      ret_expr
+                                | "..." ret_expr        -> list_item_rest
+
+descruct_list:                  "[" ((id | (rest_accessor)) [","])* "]" "=" ret_expr
+
+// Define Objects       
+dict:                           "{" [dict_items] "}"
+dict_items:                     (dict_item [","] )+
+dict_item:                      (id | num | str) ":" ret_expr       -> dict_item_default
+                                | id "(" [func_args] ")" func_body   -> dict_item_func
+                                | "..." ret_expr                    -> dict_item_rest
+                                | id                                -> dict_item_short
+
+descruct_dict:                  "{" ((id | (id ":" id) | (rest_accessor)) [","])* "}" "=" ret_expr
+
+
+// --------------------------------------------------------------------------
+// Lets enable defining variables:
+// --------------------------------------------------------------------------
+
+export:                         "export"
+declare:                        "declare" declare_var_type implicit_or_typed terminator
+declare_type:                   [export] "type" id_typed "=" type terminator
+declare_var:                    [export] declare_var_type implicit_or_typed "=" ret_expr_with_terminator
+declare_var_not_initialized:    [export] declare_var_type implicit_or_typed terminator
+declare_var_descructed:         declare_var_type descruct_dict  terminator
+                                | declare_var_type descruct_list  terminator
+
+// Valid defintions of variables.
+
+declare_var_type:               "let"
+                                | "var"
+                                | "const"
+
+// --------------------------------------------------------------------------
+// Acess Variables:
+// --------------------------------------------------------------------------
+
+// To access some vars
+// We may want to convert them to 
+// specific types.
+
+bracket_accessor:               id
+                                | str
+                                | str_multi_line
+                                | num
+                                | bool
+                                | instanceof
+                                | typeof
+                                | await_stmt
+                                | sum
+                                | product
+                                | boolean_operation
+                                | function_call
+                                | inline_if
+                                | bracket_accessor ("as" type)+                 -> simple_access
+                                | "(" bracket_accessor ")"
+
+accessor:                       id                                              -> var_based_access
+                                | str
+                                | num
+                                | list
+                                | dict
+                                | await_stmt
+                                // | ret_expr                   
+                                | accessor ("as" type)+                         -> simple_access
+                                | "(" accessor ["as" type]+ ")"                 -> simple_access 
+                                | accessor ["?"] ("." accessor)+                -> access_dot
+                                | accessor ["?"] ("[" bracket_accessor "]")+    -> access_bracket
+                                | function_call                                 -> simple_access
+
+
+rest_accessor:                "..." id
+
+// --------------------------------------------------------------------------
+// Reassignment:
+// --------------------------------------------------------------------------
+
+// lets define a reassingment:
+
+reassign:                     accessor "=" ret_expr
+
+
+// --------------------------------------------------------------------------
+// Functions:
+// These may contain: 
+//   - Async Functions
+//   - Sync Functions
+// They might be defined as `arrow_function`.
+// 
+// In General, a function is name with an valid id, may be typed, 
+// may receives a custom amount of arguments and normally provides a 
+// function body;
+// --------------------------------------------------------------------------
+
+function_generic_input_type:        "<" type ("," type)* ">"
+function_return_type:               ":" type
+
+function.10:                        [export] "function" [id] [function_generic_input_type] "(" [func_args] ")" [function_return_type] func_body             -> function
+                                    | [export] "async" "function" [id] [function_generic_input_type] "(" [func_args] ")" [function_return_type] func_body   -> async_function
+
+arrow_function.10:                  [function_generic_input_type] "(" [func_args] ")" [function_return_type] "=>" func_body               -> arrow_function
+                                    | "async" [function_generic_input_type] "(" [func_args] ")" [function_return_type] "=>" func_body     -> async_arrow_function
+
+arrow_function_type:                [function_generic_input_type] "(" [func_args] ")" [function_return_type] "=>" type
+
+// Now we have to define the valid arguments:
+// The function may receives multiple arguments
+// which are typed or implicit (-> any)
+
+func_args:                    func_arg ("," func_arg)*
+
+func_arg:                     implicit_or_typed                 -> default_func_arg
+                              | "..." implicit_or_typed         -> rest_func_arg
+                              | implicit_or_typed "=" ret_expr  -> assigend_func_arg
+
+                              // We dont want to enable list | dict destruction as a function arg, because
+                              // we can not parse it more or less :(
+                              // | dict | list 
+
+implicit_or_typed:            id                       
+                              | id ["?"] ":" type    
+
+// Define the Function Body:
+// This consists of the brackets and the statements in the function
+
+func_body:                      "{" [func_statements] "}"
+func_statements:                func_statement+
+func_statement:                 statement
+
+// And now we define, which elements are allowed to be included
+// in a function. in our case these are more or less all statements
+// Additionally, we have ot make shure, that we are able to 
+// "return" something.
+
+
+// --------------------------------------------------------------------------
+// --------------------------------------------------------------------------
+
+// The Defintion of how a function could be called.
+// In here we consider sync as well as async calls.
+
+function_call:                accessor ["<" type ("," type)* ">"] "(" [call_args] ")"
+
+// We define our call args:
+
+call_args:                    call_arg ("," call_arg)*
+
+call_arg:                     ret_expr          -> call_arg
+                              | "..." ret_expr  -> rest_call_arg
+
+type:                         basic_type
+                              | enhanced_type
+                              | "(" type ")"
+
+basic_type:                   id
+                              | "any"
+                              | "string" -> string
+                              | "boolean" -> boolean
+                              | "number" -> number
+                              | ["|"]  str ("|" str)*                               // Typess like `const a: "hello" | "world" = "world"
+                              | arrow_function_type                                 // arrow functions
+                              
+
+enhanced_type:                "|" type                                              // Leading type.
+                              | id "in" type
+                              | id ("<" type ("," type)* ">")                       // Typess like `Map<string,string>
+                              | "[" type ("," type)* "]"                            // Typess like `Array<[string,boolean]>  
+                              | "{" ( id ["?"] ":" type [";"] )* "}"                // Dynamic type like
+                              | "{" "[" id (":" | "in") type "]" ":" type [";"]"}"  // Dynamic type like `{ [index: string]: INopeDescriptor }`
+                              | type "extends"? "keyof"? "typeof"? type             // Types consisting of keyof , typeof etc
+                              | type ("[" (type | num) "]")+                        // Partial type of the Element
+                              | type ("[" "]")+                                     // Array type
+                              | type ("&" type)+                                    // Combinded type using &
+                              | type ("|" type)+                                    // Types which might be
+                              | type "=" type                                       // Types which are assigned with a default type.
+                              | accessor
+
+
+// Definition for a Nested Type.
+id_typed:                     id | enhanced_type
+
+// --------------------------------------------------------------------------
+// Loops
+// --------------------------------------------------------------------------
+
+// Define a For - Statement
+for:                            "for" "(" declare_var_type for_iter_var for_iter_type ret_expr ")" iter_body                        -> default_for
+                                | "for" "(" declare_var_type "[" (for_iter_var [","])+ "]"  for_iter_type ret_expr ")" iter_body    -> mutli_for
+                                | "for" "(" declare_var_type id "=" ret_expr ";" ret_expr ";" ret_expr ")" iter_body                -> ranged_for
+
+for_iter_type:                  "in" | "of"
+
+for_iter_var:                   id | dict | list
+
+while_statement:                "while" "(" ret_expr ")" iter_body
+
+do_while:                       "do" iter_body "while" "(" ret_expr ")" terminator
+
+iter_body:                      "{" iter_statements "}" | iter_statement
+iter_statements:                iter_statement*
+iter_statement:                 statement
+
+continue_statement:             "continue"
+break_statement:                "break"
+
+// --------------------------------------------------------------------------
+// IF-Statements
+// --------------------------------------------------------------------------
+
+// Define a If - Statement
+// We have to consider "if" "else if" and "else"
+if_statement:                   "if" "(" ret_expr ")" if_body [else_if_statements] [else_statement]
+else_if_statements:             else_if_statement+
+else_if_statement:              "else" "if" "(" ret_expr ")" if_body
+else_statement:                 "else" if_body
+
+
+if_body:                      "{" statement* "}"
+                              | ret_expr_with_terminator -> if_body_single
+
+inline_if:                    ret_expr "?" ret_expr ":" ret_expr
+
+// --------------------------------------------------------------------------
+// switch-case
+// --------------------------------------------------------------------------
+
+switch:                         "switch" "(" ret_expr ")" switch_body
+switch_body:                    "{" ((switch_case)* [switch_default])* "}"
+switch_case:                    "case" ret_expr ":" [switch_case_body]
+switch_default:                 "default" ":" [switch_case_body]
+
+switch_case_body:               (("{" switch_case_statements "}") | switch_case_statements) break_statement
+
+switch_case_statements:         switch_case_statement*
+switch_case_statement:          statement
+                                
+
+// --------------------------------------------------------------------------
+// Error Handling
+// --------------------------------------------------------------------------
+
+try_catch:                    "try" try_catch_body "catch" "(" id ")" try_catch_body ["finally" try_catch_body]
+
+try_catch_body:               "{" statement* "}"
+
+throw_statement:              "throw" ret_expr
+throw_error_statement:        "throw" "Error" "(" ret_expr ")"
+
+// --------------------------------------------------------------------------
+// interfaces
+// --------------------------------------------------------------------------
+
+interface:                    [export] "interface" id_typed ["extends" implementing_interfaces] interface_body
+
+extending_interfaces:         id_typed ("," id_typed)*  
+
+interface_body:               "{" interface_declarations* "}"
+
+interface_declarations:       interface_declaration
+
+// Interfaces contains implicit or typed attributes or methods
+
+interface_declaration:        [readonly] implicit_or_typed terminator
+                              | id ["<" type ("," type)* ">"] "(" [func_args]  ")" [":" type ] terminator
+
+// --------------------------------------------------------------------------
+// classes
+// --------------------------------------------------------------------------
+
+
+class:                        [export] "class" id_typed ["extends" id_typed] ["implements" implementing_interfaces] class_body
+decorated_class:              "@" function_call class
+                              | /let \w+ = (?=class)/ class terminator      // Version compiled by tsc
+
+implementing_interfaces:      id_typed ("," id_typed)*
+
+class_body:                   "{" class_declarations* "}"
+
+class_declarations:           constructor
+                              | property_defintion
+                              | property_assigned
+                              | decorated_property_assigned
+                              | decorated_property_defintion
+                              | getter
+                              | setter
+                              | method
+                              | async_method
+                              | decorated_method
+                              | decorated_async_method
+
+constructor:                  ["public"] "constructor" "(" constructor_args? ")" func_body
+constructor_args:             constructor_arg ("," constructor_arg)*
+constructor_arg:              ["@" function_call] [visibility] [readonly] func_arg
+
+visibility:                   "private"
+                              | "protected"
+                              | "public"
+
+readonly:                     "readonly"
+
+property_defintion:           [visibility] [readonly] implicit_or_typed terminator
+property_assigned:            [visibility] [readonly] implicit_or_typed "=" ret_expr_with_terminator
+decorated_property_defintion: ("@" function_call) property_defintion
+decorated_property_assigned:  ("@" function_call) property_assigned
+
+getter:                       [visibility] "get" id "("")" [":" type] func_body
+setter:                       [visibility] "set" id "(" func_arg ")" [":" "void"] func_body
+
+method:                       [visibility] id ["<" type ("," type)* ">"] "(" [func_args] ")" [":" type] func_body 
+async_method:                 [visibility] "async" id ["<" type ("," type)* ">"] "(" [func_args] ")" [":" type] func_body 
+decorated_method:             ("@" function_call) method
+decorated_async_method:       ("@" function_call) async_method
+
+// Types for a new Class
+new_class:                    "new" id_typed "(" [call_args] ")"

@@ -1,0 +1,73 @@
+#!/usr/bin/env python
+# @author {{project.author.forename}} {{project.author.surename}}
+# @email {{project.author.mail}}
+
+from nope import exportAsNopeService, getNopeLogger, BaseModule, NopeObservable, NopeEventEmitter
+
+class {{firstup name}}Module(BaseModule):
+
+    def __init__(self, core):
+        super().__init__(core)
+
+        # Define the Description:
+        self.setAuthor("{{project.author.forename}}","{{project.author.surename}}","{{project.author.mail}}")
+        self.setVersion("{{project.version}}", "{{now}}")
+        self.description = "{{description}}"
+
+        # Generate the Properties
+        {{#each properties}}
+        self.{{this}} = NopeObservable()
+        {{/each}}
+
+        # Generate the Events
+        {{#each events}}
+        self.{{this}} = NopeEventEmitter()
+        {{/each}}
+
+    async def init(self):
+
+        {{#each properties}}
+        # Register the Property '{{this}}'
+        await self.registerProperty('{{this}}', self.{{this}}, {
+            'topic': '{{this}}',
+            'mode': ['publish', 'subscribe']
+        })
+        {{/each}}
+
+        {{#each events}}
+        # Register the Event '{{this}}'
+        await self.registerEvent('{{this}}', self.{{this}}, {
+            'topic': '{{this}}',
+            'mode': ['publish', 'subscribe']
+        })
+        {{/each}}
+
+        {{#each methods}} 
+        # Register the Methods '{{this}}'
+        await self.registerMethod('{{this}}', self.{{this}}, {
+            "id": "{{this}}",
+            "schema": {
+                "type": "function"
+            }
+        })
+        {{/each}}
+        
+        await super().init()
+
+    {{#each methods}}
+    async def {{this}}(self, *args, **kwargs):
+        # Please change my content
+        raise Exception("Not implemented!")
+
+    {{/each}}
+
+    async def dispose(self):
+        await super().dispose()
+
+        {{#each properties}}
+        self.{{this}}.dispose()
+        {{/each}}
+        
+        {{#each events}}
+        self.{{this}}.dispose()
+        {{/each}}

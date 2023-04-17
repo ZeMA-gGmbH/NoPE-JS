@@ -1,0 +1,9 @@
+export interface {{toInterface name}} {
+    {{#each properties}}
+    {{this}}: INopeObservable<unknown>;
+    {{/each}}
+
+    {{#each methods}}
+    {{this}}(): Promise<unknown>;
+    {{/each}}
+}

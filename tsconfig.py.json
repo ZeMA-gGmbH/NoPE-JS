@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "lib": [
+      "ES2021",
+      "dom"
+    ],
+    "allowJs": true,
+    "allowUnusedLabels": true,
+    "charset": "utf-8",
+    "experimentalDecorators": true,
+    "module": "ES2022",
+    "noFallthroughCasesInSwitch": false,
+    "noImplicitReturns": true,
+    "outDir": "./dist-py",
+    "pretty": false,
+    "removeComments": false,
+    "stripInternal": true,
+    "downlevelIteration": true,
+    "noImplicitAny": false,
+    "declaration": true
+  },
+  "include": [
+    "lib/communication",
+    "lib/decorators",
+    "lib/dispatcher",
+    "lib/eventEmitter",
+    "lib/helpers",
+    "lib/loader",
+    "lib/logger",
+    "lib/module",
+    "lib/observables",
+    "lib/promise",
+    "lib/pubSub"
+  ],
+  "exclude": [
+    "node_modules",
+    "temp",
+    "dist-nodejs",
+    "dist-browser"
+  ]
+}

@@ -1,0 +1,31 @@
+// Automatic Genearted Backend-Interface
+// To update run `npm run build:backend` 
+
+import { nopeDispatcher } from "./dispatcher/nopeDispatcher"
+{{#each classes}}
+import { {{className}} } from "./clients/{{fileName}}";
+{{/each}}
+{{#each functions}}
+import { {{generatorName}} } from "./functions/{{fileName}}";
+{{/each}}
+
+export class BackendInterface {
+
+    {{#each classes}}
+    public readonly {{orginalName}}: {{className}};
+    {{/each}}
+
+    {{#each functions}}
+    public readonly {{orginalName}}: ({{#each params}}{{#if isBaseType}}{{name}}{{#if isOptional}}?{{/if}}: {{{originalCode}}}{{/if}}{{#unless isBaseType}}{{name}}{{#if isOptional}}?{{/if}}: import("./functions/{{../fileName}}").{{{simplifiedType}}}{{/unless}}{{#unless @last}}, {{/unless}}{{/each}}) => Promise<{{{returnType.simplifiedSubType}}}>;
+    {{/each}}
+
+    constructor(protected _dispatcher: nopeDispatcher){
+        {{#each classes}}
+        this.{{orginalName}} = new {{className}}(_dispatcher);
+        {{/each}}
+
+        {{#each functions}}
+        this.{{orginalName}} = {{generatorName}}(_dispatcher);
+        {{/each}}
+    }
+}

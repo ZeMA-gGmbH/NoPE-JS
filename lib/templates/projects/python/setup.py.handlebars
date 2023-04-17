@@ -1,0 +1,51 @@
+#!/usr/bin/env python
+# Author: {{author.name}}
+# Mail: {{author.mail}}
+# Created with love by the NoPE-Cli Tool
+
+from setuptools import setup
+
+try:
+    long_description = open("README").read()
+except BaseException:
+    long_description = """{{description}}"""
+
+if __name__ == "__main__":
+    setup(name="nope",
+          version=open("VERSION").read().strip(),
+          description="{{description}}",
+          long_description=long_description,
+          long_description_content_type="text/markdown",
+          author="{{author.forename}} {{author.surename}}",
+          author_email="{{{author.mail}}}",
+          maintainer="{{author.forename}} {{author.surename}}",
+          maintainer_email="{{{author.mail}}}",
+          install_requires=[
+            {{#each depencies}}
+            '{{this}}',
+            {{/each}}
+          ],          
+          {{#if git}}
+          # Please Adapt the git path
+          url="{{git.repo.created}}",
+          {{/if}}
+          # Please add all your sub-folders.
+          packages=['{{name}}',
+                    {{#each classes}}
+                    '{{../this.name}}.{{name}}',
+                    {{/each}}
+                   ],
+          package_data={'': ['VERSION']},
+          include_package_data=True,
+          classifiers=[
+              "Operating System :: OS Independent",
+              "Programming Language :: Python",
+              "Topic :: Scientific/Engineering",
+              "Topic :: Software Development :: Libraries :: Python Modules",
+          ],
+            entry_points={
+                'console_scripts': [
+                    # '{name} = {path}:{function}',
+                ],
+            },
+          )

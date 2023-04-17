@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "allowJs": true,
+    "allowUnusedLabels": true,
+    "charset": "utf-8",
+    "experimentalDecorators": true,
+    "module": "ES2020",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": false,
+    "noImplicitReturns": true,
+    "outDir": "./dist-browser",
+    "pretty": false,
+    "removeComments": false,
+    "stripInternal": true,
+    "downlevelIteration": true,
+    "noImplicitAny": false,
+    "declaration": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "{{name}}"
+  ],
+  "exclude": [
+    "node_modules",
+    "temp",
+    "dist-nodejs",
+    "dist-browser"
+  ]
+}

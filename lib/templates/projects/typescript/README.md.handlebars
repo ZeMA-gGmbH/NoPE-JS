@@ -1,0 +1,25 @@
+Please Checkout the Docu of: 
+- Link to the repo: {{{git.repo}}}
+
+# Installation:
+
+1. run `npm install` to install all depencies.
+2. run `00-compile` (use either `.sh` or `.bat` based on your os.)
+3. run `nope-js conf -d dist` to create an configuration (a launch-file).
+    - Edit it afterwards if required.
+4. run `nope-js run` to run your code.
+    - you may want to add `-c io-client` or `-c mqtt` to connect the runtime to other runtimes.
+
+# Extend modules:
+
+1. run `nope-js project edit` to add additional **services** or **modules** 
+2. repeat until you have created enough items.
+
+# Coding:
+
+> Work with the `VERSION` file and the `CHANELOG`. Use git to commit your changes!
+
+# Docs:
+
+1. run `npm run-script doc`
+2. open the `index.html` created in `docs`

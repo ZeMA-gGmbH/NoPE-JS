@@ -1,0 +1,16 @@
+{
+    "analyzers": {
+        "typescript": {
+            "inputDir": "../nope-modules/modules/**/*.ts",
+            "tsConfig": "../nope-modules/tsconfig.json"
+        }
+    },
+    "parsers": {
+        "openApi": {
+            "outputDir": "./open-api/backend-api"
+        }
+    },
+    "tempDir": "./temp/",
+    "configDir": "./config",
+    "modules": "./dist/modules"
+}

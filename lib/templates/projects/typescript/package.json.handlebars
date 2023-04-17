@@ -1,0 +1,47 @@
+{
+  "name": "{{underscore name}}",
+  "version": "1.0.0",
+  "description": "{{description}}",
+  "main": "start.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx nope-js run",
+    "compile-nodejs": "tsc -p ./tsconfig.json",
+    "compile-browser": "tsc -p ./tsconfig.browser.json",
+    "doc": "npx typedoc",
+    "build": "npx webpack -c webpack-typescript.config.js",
+    "prettier-format": "run-script-os",
+    "prettier-format:win32": "prettier \"./{{name}}/**/*.ts\" --write",
+    "prettier-format:darwin:linux": "prettier '{{name}}/**/*.ts' --write",
+    "prettier-format:default": "prettier '{{name}}/**/*.ts' --write",
+    "prettier-watch": "run-script-os",
+    "prettier-watch:win32": "onchange \"{{name}}/**/*.ts\" -- prettier --write {{changed}}",
+    "prettier-watch:darwin:linux": "onchange '{{name}}/**/*.ts' -- prettier --write {{changed}}",
+    "prettier-watch:default": "onchange '{{name}}/**/*.ts' -- prettier --write {{changed}}"
+  },
+  "author": "{{author.forename}} {{author.surename}}",
+  "license": "MIT",
+  "dependencies": {
+    "nope": "file:../nope-backend",
+    "nope-browser": "file:../nope-backend/build"
+  },
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "dts-bundle": "^0.7.3",
+    "dts-bundle-webpack": "^1.0.2",
+    "eslint": "^8.30.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "mocha": "^10.2.0",
+    "npm-check-updates": "^16.6.2",
+    "onchange": "^7.1.0",
+    "prettier": "2.8.1",
+    "typedoc": "^0.23.23",
+    "typedoc-plugin-mermaid": "^1.9.0",
+    "typedoc-umlclass": "^0.7.0",
+    "typescript": "^4.9.4",
+    "webpack": "^4.46.0",
+    "webpack-cli": "^4.8.0"
+  }
+}

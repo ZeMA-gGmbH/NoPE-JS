@@ -1,0 +1,422 @@
+%import common.WS
+%import common.DIGIT
+%import common.INT
+
+//--------------------------------------------------------------------------
+// JS-Ignorers:
+//--------------------------------------------------------------------------
+%ignore /\"use strict\";/
+%ignore /Object.defineProperty(exports, "__esModule", { value: true });/
+%ignore /var __(.|\n)*?};/
+%ignore /\w+ = __decorate(.|\n)*?\], \w+\);/
+%ignore /exports.\w+ = \w+;/
+type_of_function:      "void 0"
+//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
+
+
+MULTI_LINE_COMMENT: "/**" /(.|\n)*?/ "*/\n"
+COMMENT: "//" /.*/
+STR: /(`.*?`)|(".*?")|(\'.*?\')/ 
+%ignore MULTI_LINE_COMMENT
+%ignore COMMENT
+%ignore WS
+// Ignore Exports
+// %ignore "export" "default" /w+/ ";"
+// %ignore "export" "*" "from" STR ";"
+// %ignore "export" "*" "as" /w+/ "from" STR  ";"
+// %ignore "export" "{" /(?<=export {)(.|\n)+?(?=})/ "}" "from" STR ";"
+// %ignore "export" "{" /(?<=export {)(.|\n)+?(?=})/ "}" ";"
+
+skip:                           export "{" (id [","])+ "}" terminator
+
+
+// --------------------------------------------------------------------------
+// Summary:
+// --------------------------------------------------------------------------
+
+start:                          statement+
+
+// we have to define, what is a valid return type
+
+ret_expr:                       id
+                                | str
+                                | str_multi_line
+                                | num
+                                | bool
+                                | null
+                                | undefined
+                                | instanceof
+                                | typeof
+                                | increment
+                                | decrement
+                                | invert
+                                | list
+                                | dict
+                                | reassign
+                                | await_stmt
+                                | delete_stmt
+                                | reg_ex
+                                | throw_statement
+                                | sum
+                                | product
+                                | boolean_operation
+                                | accessor
+                                | function
+                                | arrow_function
+                                | function_call
+                                | inline_if
+                                | new_class                              
+                                | break_statement
+                                | continue_statement
+                                | "(" ret_expr ")"
+                                | return_statement
+
+// Now we ar able to provide this expressions wiht a terminator.
+
+ret_expr_with_terminator.10:    ret_expr terminator
+                                
+return_statement:               "return" [ret_expr]                   
+
+statement:                      ret_expr_with_terminator
+                                | declare_var
+                                | declare_var_not_initialized
+                                | declare_var_descructed
+                                | import_stmt
+                                | for
+                                | while_statement
+                                | do_while
+                                | if_statement
+                                | switch
+                                | class_statement
+                                | decorated_class_statement
+                                | function
+                                | try_catch
+                                | skip
+
+
+// --------------------------------------------------------------------------
+// --------------------------------------------------------------------------
+
+// Default Terminator:
+terminator.100:                 ";"
+
+// Default ID:
+id:                             /[a-zA-Z_$][a-zA-Z0-9_$]*/ -> identifier
+
+
+// We define valid import statements:
+
+import_stmt:                    "import" str terminator -> import_stmt_all
+                                | "import" id "from" str terminator -> import_stmt_id
+                                | "import" "*" "as" id "from" str terminator -> import_stmt_as
+                                | "import" "{" import_names "}" "from" str terminator -> import_stmt_from
+
+// we may import multiple items:
+import_names:                   import_name ("," import_name)* [","]
+
+// The import name might include multiple lines
+import_name:                    id
+                                | id "as" id -> import_as_name
+                                | /\n/
+// Lets define a string;    
+str:                            /(`.*?`)|(".*?")|(\'.*?\')/
+str_multi_line:                 /(`(\\`|.|\n)*?`)/
+
+// Lets define a number;
+num:                            INT ["." INT] | "." INT
+
+// Define a boolean;
+bool:                           bool_false | bool_true
+bool_false:                     "false"
+bool_true:                      "true"
+
+null:                           "null"
+undefined:                      "undefined"
+
+increment:                      accessor "++" 
+                                | "++" accessor
+decrement:                      accessor "--"
+                                | "--" accessor
+
+invert:                         "!" ret_expr
+
+instanceof.100:                 id "instanceof" id
+
+typeof.100:                     "typeof" accessor
+
+delete_stmt.100:                "delete" accessor
+
+await_stmt:                     "await" ret_expr
+
+reg_ex:                         "/" /(?<=\/).+(?=\/\w)/ "/" [/\w/]
+
+sum:                            product
+                                | sum "+" product -> add
+                                | sum "-" product -> sub
+                                | accessor "+=" product -> assigned_add
+                                | accessor "-=" product -> assigned_sub
+
+product:                        atom
+                                | product "*" atom -> mult
+                                | product "/" atom -> div
+                                | accessor "*=" atom    -> assigned_mult
+                                | accessor "/=" atom    -> assigned_div
+
+boolean_operation:              boolean_input boolean_operator boolean_input                          
+
+boolean_operator:               ">"       -> bool_op_gt
+                                | "<"     -> bool_op_lt
+                                | "<="    -> bool_op_lte
+                                | ">="    -> bool_op_gte
+                                | "=="    -> bool_op_eq
+                                | "==="   -> bool_op_eq
+                                | "!="    -> bool_op_not_eq
+                                | "!=="   -> bool_op_not_eq
+                                | "&&"    -> bool_op_and
+                                | "||"    -> bool_op_or
+                                | "in"    -> bool_op_in
+
+boolean_input:                  ret_expr
+
+atom:                           ret_expr
+                                | id
+                                | "-" atom
+                                | "(" sum ")"
+
+// Define Lists.            
+list:                           "[" [list_items] "]"
+list_items:                     (list_item [","])+
+list_item:                      ret_expr
+                                | "..." ret_expr        -> list_item_rest
+
+declare_descruct_list_var:      declare_var_type "[" (destruct_list_items [","])* "]" "=" ret_expr terminator
+destruct_list_items:            destruct_list_item | destruct_list_rest
+destruct_list_rest:             "..." id
+destruct_list_item:             id
+
+// Define Objects       
+dict:                           "{" [dict_items] "}"
+dict_items:                     (dict_item [","] )+
+dict_item:                      (id | num | str) ":" ret_expr       -> dict_item_default
+                                | id "(" [func_args] ")" body       -> dict_item_func
+                                | "..." ret_expr                    -> dict_item_rest
+                                | id                                -> dict_item_short
+
+declare_descruct_dict_var:      declare_var_type "{" (descruct_dict_items [","])* "}" "=" ret_expr terminator
+descruct_dict_items:            (destruct_dict_single_id | destruct_dict_renamed | destruct_dict_rest)
+destruct_dict_single_id:        id
+destruct_dict_renamed:          (id | num | str) ":" id
+destruct_dict_rest:             "..." id
+
+
+// --------------------------------------------------------------------------
+// Lets enable defining variables:
+// --------------------------------------------------------------------------
+
+export:                         "export"
+declare_var.10:                 [export] declare_var_type id "=" ret_expr_with_terminator
+                                | [export] declare_var_type id "=" function terminator
+                                | [export] declare_var_type id "=" arrow_function terminator
+
+declare_var_not_initialized.10: [export] declare_var_type id terminator
+declare_var_descructed.10:      declare_descruct_dict_var | declare_descruct_list_var
+
+// Valid defintions of variables.
+
+declare_var_type:               "let"
+                                | "var"
+                                | "const"
+
+// --------------------------------------------------------------------------
+// Acess Variables:
+// --------------------------------------------------------------------------
+
+// To access some vars
+// We may want to convert them to 
+// specific types.
+
+bracket_accessor:               id
+                                | str
+                                | str_multi_line
+                                | num
+                                | bool
+                                | instanceof
+                                | typeof
+                                | "(" await_stmt ")"                                
+                                | await_stmt
+                                | sum
+                                | product
+                                | boolean_operation
+                                | function_call
+                                | inline_if
+                                | "(" bracket_accessor ")"
+
+accessor:                       id                                              -> var_based_access
+                                | str
+                                | num
+                                | list
+                                | dict
+                                | await_stmt
+                                | "(" await_stmt ")" 
+                                | accessor ["?"] ("." accessor)+                -> access_dot
+                                | accessor ["?"] ("[" bracket_accessor "]")+    -> access_bracket
+                                | function_call
+                                | accessor "." "length"                         -> access_len
+                                | accessor "." "size"                           -> access_len
+                                | accessor "." "filter" "(" call_args ")"       -> access_filter
+                                | accessor "." "map" "(" call_args ")"          -> access_map
+
+
+rest_accessor:                  "..." id
+
+// --------------------------------------------------------------------------
+// Reassignment:
+// --------------------------------------------------------------------------
+
+// lets define a reassingment:
+
+reassign:                       accessor "=" ret_expr
+
+
+// --------------------------------------------------------------------------
+// Functions:
+// These may contain: 
+//   - Async Functions
+//   - Sync Functions
+// They might be defined as `arrow_function`.
+// 
+// In General, a function is name with an valid id, may be typed, 
+// may receives a custom amount of arguments and normally provides a 
+// function body;
+// --------------------------------------------------------------------------
+
+function:                           [export] "function" [id] "(" [func_args] ")" body               -> function
+                                    | [export] "async" "function" [id] "(" [func_args] ")" body     -> async_function
+
+arrow_function:                     "(" [func_args] ")"  "=>" body                                  -> arrow_function
+                                    | "async" "(" [func_args] ")" "=>" body                         -> async_arrow_function
+
+// Now we have to define the valid arguments:
+// The function may receives multiple arguments
+// which are typed or implicit (-> any)
+
+func_args:                    func_arg ("," func_arg)*
+
+func_arg:                     id                 -> default_func_arg
+                              | "..." id         -> rest_func_arg
+                              | id "=" ret_expr  -> assigend_func_arg
+
+                              // We dont want to enable list | dict destruction as a function arg, because
+                              // we can not parse it more or less :(
+                              // | dict | list 
+
+// --------------------------------------------------------------------------
+// --------------------------------------------------------------------------
+
+// The Defintion of how a function could be called.
+// In here we consider sync as well as async calls.
+
+function_call:                accessor "(" [call_args] ")"
+
+// We define our call args:
+
+call_args:                    call_arg ("," call_arg)*
+
+call_arg:                     ret_expr          -> call_arg
+                              | "..." ret_expr  -> rest_call_arg
+
+// --------------------------------------------------------------------------
+// Loops
+// --------------------------------------------------------------------------
+
+// Define a For - Statement
+for:                            "for" "(" declare_var_type id for_iter_type accessor ")" body_or_expr_with_terminator                                   -> default_for
+                                | "for" "(" declare_var_type id "=" ret_expr ";" ret_expr ";" ret_expr ")" body_or_expr_with_terminator                 -> ranged_for
+                                | "for" "(" declare_var_type "[" (id [","])+ "]"  for_iter_type ret_expr ")" body_or_expr_with_terminator               -> multi_for
+
+for_iter_type:                  "in" | "of"
+
+while_statement:                "while" "(" ret_expr ")" body_or_expr_with_terminator
+
+do_while:                       "do" body "while" "(" ret_expr ")" terminator
+
+body:                           "{" statement* "}" 
+
+body_or_expr_with_terminator:   body
+                                | ret_expr_with_terminator
+
+continue_statement:             "continue"
+break_statement:                "break"
+
+// --------------------------------------------------------------------------
+// IF-Statements
+// --------------------------------------------------------------------------
+
+// Define a If - Statement
+// We have to consider "if" "else if" and "else"
+if_statement.10:                "if" "(" ret_expr ")" body_or_expr_with_terminator [else_if_statements] [else_statement]
+else_if_statements:             else_if_statement+
+else_if_statement.9:            "else" "if" "(" ret_expr ")" body_or_expr_with_terminator
+else_statement.9:               "else" body_or_expr_with_terminator
+
+inline_if.10:                   ret_expr "?" ret_expr ":" ret_expr
+
+// --------------------------------------------------------------------------
+// switch-case
+// --------------------------------------------------------------------------
+
+switch.10:                      "switch" "(" ret_expr ")" switch_body
+switch_body.9:                  "{" (switch_case* [switch_default])* "}"
+switch_case.8:                  "case" ret_expr ":" switch_case_body
+switch_default.7:               "default" ":" switch_case_body
+
+switch_case_body:               ("{" switch_case_statements "}") 
+                                | switch_case_statements
+
+switch_case_statements:         statement* switch_case_body_end
+
+switch_case_body_end:           break_statement terminator
+                                | return_statement terminator
+                                | throw_statement terminator
+                                | throw_error_statement terminator                                
+
+// --------------------------------------------------------------------------
+// Error Handling
+// --------------------------------------------------------------------------
+
+try_catch:                    "try" body "catch" "(" id ")" body ["finally" body]
+
+throw_statement:              "throw" ret_expr
+throw_error_statement:        "throw" "Error" "(" ret_expr ")"
+// --------------------------------------------------------------------------
+// classes
+// --------------------------------------------------------------------------
+
+
+class_statement:              [export] "class" id ["extends" id] class_body
+decorated_class_statement:    "@" function_call class_statement
+                              | /let \w+ = (?=class)/ class_statement terminator      // Version compiled by tsc
+
+class_body:                   "{" class_declarations* "}"
+
+class_declarations:           constructor                             
+                              | getter
+                              | setter
+                              | method
+                              | async_method
+                              | decorated_method
+                              | decorated_async_method
+
+constructor:                  "constructor" "(" [func_args] ")" body
+
+getter:                       "get" id "(" ")" body
+setter:                       "set" id "(" func_arg ")" body
+
+method:                       id "(" [func_args] ")" body 
+async_method:                 "async" id "(" [func_args] ")" body 
+decorated_method:             ("@" function_call) method
+decorated_async_method:       ("@" function_call) async_method
+
+// Types for a new Class
+new_class:                    "new" ret_expr "(" [call_args] ")"

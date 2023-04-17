@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "allowJs": true,
+    "allowUnusedLabels": true,
+    "charset": "utf-8",
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": false,
+    "noImplicitReturns": true,
+    "outDir": "./dist",
+    "pretty": false,
+    "removeComments": false,
+    "stripInternal": true,
+    "downlevelIteration": true,
+    "noImplicitAny": false,
+    "declaration": true,
+    "skipLibCheck": true
+  },
+  "typedocOptions": {
+    "entryPoints": [
+      "{{name}}/index.nodejs.ts"
+    ],
+    "out": "docs",
+    "umlClassDiagram": {
+      "type": "detailed",
+      "location": "local",
+      "format": "png"
+    },
+    "includes": "wiki"
+  },
+  "include": [
+    "{{name}}"
+  ],
+  "exclude": [
+    "node_modules",
+    "temp",
+    "dist-nodejs",
+    "dist-browser"
+  ]
+}

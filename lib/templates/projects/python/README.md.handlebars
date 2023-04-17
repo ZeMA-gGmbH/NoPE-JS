@@ -1,0 +1,95 @@
+Please Checkout the Docu of: 
+- Link to the repo: {{{git.repo}}}
+
+# Installation:
+
+1. run `pip install -r requirements` to install all depencies.
+2. run `nope-py scan` to create an configuration (a launch-file).
+    - Edit it afterwards if required.
+3. run `nope-py run` to run your code.
+    - you may want to add `-c io-client` or `-c mqtt` to connect the runtime to other runtimes.
+4. For debug, start the `run.py`
+
+# Extend modules:
+
+1. run `nope-js project edit` to add additional **services** or **modules**.
+2. repeat until you have created enough items.
+
+# Coding:
+
+> Work with the `VERSION` file and the `CHANELOG`. Use git to commit your changes!
+
+# Docs:
+
+## Linux:
+run `make html` in the `docs` folder.
+
+## Windows:
+run `./make.bat html` in the `docs` folder.
+
+# Adding autostarts:
+
+## Adding default instances:
+
+Add to the `{{name}}/__init__.py` in the corresponding module the `defaultInstances` tag.
+The tag requires a list. The list must contain `DefaultInstance` items. (import it via nope.)
+
+```python
+    ...
+    defaultInstances=[
+        DefaultInstance(
+            "demo",
+            "Logic",
+            []
+        )
+    ],
+    ...
+
+```
+
+## Adding an Autostart for an instance.
+
+Add to the `{{name}}/__init__.py` in the corresponding NopePackage the `autostart` tag.
+The autostart requires a dict. The key must match an default instances name. The
+value must contain a list must contain `Autostart` items. (import it via nope.)
+
+```python
+    ...
+    autostart={
+        "demo": [
+            Autostart(
+                "run",
+                [],
+                1
+            )
+        ]
+    },
+    ...
+
+```
+
+## Full Example:
+
+```python
+DESCRIPTION = NopePackage(
+    "logic_max",
+    providedServices=providedServices,
+    providedClasses=providedClasses,
+    autostart={
+        "demo": [
+            Autostart(
+                "run",
+                [],
+                1
+            )
+        ]
+    },
+    defaultInstances=[
+        DefaultInstance(
+            "demo",
+            "Logic",
+            []
+        )
+    ]
+)
+```

@@ -1,0 +1,75 @@
+# NoPE requirements list:
+
+- Programming interfaces:
+    - usable from python (for the scientific staff) and javascript (for browser-based UIs / the backend).
+- Software stack:
+    - The definition of the software stack should be done via configuration files.
+    - The stack can be executed / encapsulated via Docker.
+- Standards and norms (e.g. IETF, W3C, ISO and IEC standards).
+    - Communication patterns are done according to common standards (e.g. MQTT, OPCUA, io-sockets).
+- Form and scope of required user documentation:
+    - The software includes wikis to provide users with tutorilas on the application.
+- Quality assurance requirements
+    - The functionalities of the system will be mapped via software tests. (100% is desired here)
+    - Test coverage by unit tests
+- The **SOLID** principle and the **Clean Code** approach should be followed. 
+    - The **S**ingle Responsibility Principle states that each class should have only one responsibility. Responsibility is defined here as "reason to change". 
+    - The **O**pen-Closed-Principle states that software entities (here modules, classes, methods etc.) should make extensions possible (be open for this), but without changing their behavior (their source code and interface should not change). --> Requires a plugin system
+    - The **L**iskov substitution principle (LSP) or substitutability principle requires that an instance of a derived class must behave in such a way that someone who thinks they are looking at an object of the base class is not surprised by unexpected behavior when it is actually an object of a subtype.
+    - The **I**nterface segregation principle is used to split up interfaces that are too large. The segregation should be done according to the clients' requirements for the interfaces - in such a way that the new interfaces fit exactly to the requirements of the individual clients. This means that the clients only have to deal with interfaces that can do that and only that which the clients need.
+    - The **D**ependency Inversion Principle deals with reducing the coupling of modules. It states that dependencies should always be directed from more concrete lower level modules to abstract higher level modules
+- Data types and data structures:
+    - The system should rely on standardized formats for exchange (bpsw. `JSON`).
+    - Data structures should be described by standards (bpsw. `JSON schemas`)
+- Requirements for unique identifiers (IDs, GUIDs, URIs, URNs, Clean URLs)
+    - Elements within the system have unique identifiers but can store information on same identifiers. 
+- Type of data persistence and lifetime of data:
+    - Data does not need to be stored. This is done via modules
+- Requirements for data transactions (considering the CAP theorem)
+    - Data must be available everywhere within the runtime environment. 
+    - Data is not versioned within the system.
+    - Data can be changed locally. These changes must be distributed to all participants.
+    - If new participants enter the system, they must receive the current data master.
+    - Data can be deleted, overwritten or changed.
+    - Participants must be able to subscribe to data changes.
+- Functionality from the user's point of view
+    - Implementation of common RPC mechanisms (Remote Procedure Calls) via `services`.
+        - Dynamic registration of services.
+        - The same `service` can be available multiple times in the system (multiple *service providers* )
+        - Selection of a *service provider* should be enabled if there are multiple providers of the service
+        - Errors must be propagated through the system. I.e. the subscriber who requested a service must be informed about a failure in the form of an exception.
+    - Implementation of common topic-based publish and subscribe mechanisms (see e.g. MQTT wildcards):
+        - Obtain all data via MQTT-based query format (see [MQTT wildcards](https://www.hivemq.com/blog/mqtt-essentials-part-5-mqtt-topics-best-practices/). )
+        - Manipluation of all data via MQTT-based query format (see [MQTT-Wildcards](https://www.hivemq.com/blog/mqtt-essentials-part-5-mqtt-topics-best-practices/) )
+        - Changes should be observable via so-called `subscriptions
+    - Implementation of a service discovery
+    - Dynamic honoring and interpretation of services.
+    - Representation of all participants as well as system-relevant information (e.g. CPU, free memory, OS, environment (python|`js`)).
+    - Creation of instances based on classes should be enabled.
+    - Behavior like classical programming
+- Style guidelines:
+    - Adherence to a style guideline as different programming environments are used.
+    - In the context of the project `camel-case` must be used
+
+      <img src="https://www.clipartkey.com/mpngs/m/37-377046_inverse-camel-case.png" alt="drawing" width="200"/>
+- Logging:
+    - Standardized provision of loggers. 
+    - Loggers must be able to implement different log levels
+    - Log shall optionally be saved as a file
+- Traceability:
+    - There must be an overview of all running tasks / services within the system.
+    - Tasks must be able to be canceled
+- Performance requirements:
+    - The system should be able to handle at least 1000 requests per second.
+    - The response times should be `< 5 ms`.
+- Multilingualism:
+    - usable from python (for the scientific staff) and javascript (for browser based UIs / the backend)
+- Handling of time zones, as well as leap seconds and hours:
+    - The times should be synchronized across the systems
+- Encryption methods:
+    - No encryption methods need to be implemented. 
+    - However, an implementation of encrypted communication should be made possible.
+- Behavior in case of error of an instance of the system (e.g. dynamic routing)
+    - Errors must be propagated through the system. I.e. the subscriber who has requested a service must be informed about a failure in the form of an exception.
+- on which hardware should the software be executable:
+    - Common PCs (x86 architecture)

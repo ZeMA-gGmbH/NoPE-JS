@@ -1,0 +1,12 @@
+from .{{name}}Module import {{firstup name}}Module
+
+async def _create{{firstup name}}Instance(core):
+    # Please check the content here
+    return {{firstup name}}Module(core)
+
+providedClasses.append(
+    ProvidedClass(
+        "{{name}}",
+        _create{{firstup name}}Instance
+    )       
+)

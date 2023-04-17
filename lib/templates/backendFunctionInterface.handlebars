@@ -1,0 +1,17 @@
+// Automatic Genearted File for Backendclass: "{{className}}"
+// To update run `npm run build:backend` 
+
+import { nopeDispatcher } from "../dispatcher/nopeDispatcher"
+
+{{!-- Define the Imports. --}}
+{{#if imports.required}}
+{{{imports.content}}}
+{{/if}}
+
+export function {{generatorName}}(_dispatcher: nopeDispatcher){
+    return async ({{#each params}}{{#if isBaseType}}{{name}}{{#if isOptional}}?{{/if}}: {{{originalCode}}}{{/if}}{{#unless isBaseType}}{{name}}{{#if isOptional}}?{{/if}}: {{{simplifiedType}}}{{/unless}}{{#unless @last}}, {{/unless}}{{/each}}) => {
+        // Perform the Method via the Dispatcher.
+        {{!-- Perform the Dispather-Call --}}
+        return await _dispatcher.performCall<{{{returnType.simplifiedSubType}}}>('{{uri}}', [{{#each params}}{{name}}{{#unless @last}}, {{/unless}}{{/each}}])
+    }
+}

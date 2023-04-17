@@ -1,0 +1,13 @@
+import { {{toService name}} } from "../types/interfaces";
+import { exportAsNopeService, getNopeLogger } from "nope";
+
+const logger = getNopeLogger("{{name}}-service")
+
+export const {{name}}: {{toService name}} =  exportAsNopeService(async function (greetings: string) {
+    // Please overwrite me.
+    logger.debug("calling service '{{name}}' with the following parameters:", greetings)
+    return "Hello " + greetings + "!"
+}, {
+    id: "{{name}}",
+    schema: {},
+});

@@ -1,0 +1,11 @@
+// Import the Service
+
+import { {{ name }} } from "./{{name}}.functions" 
+
+// add the Service
+providedServices.push({
+  service: {{ name }},
+  options: {
+    id: "{{ name }}",
+  }
+});

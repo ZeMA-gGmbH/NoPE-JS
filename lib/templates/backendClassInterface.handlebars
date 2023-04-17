@@ -1,0 +1,66 @@
+// Automatic Genearted File for Backendclass: "{{className}}"
+// To update run `npm run build:backend` 
+
+import { nopeDispatcher } from "../dispatcher/nopeDispatcher"
+import { nopeRemoteObservable } from "../observables/nopeRemoteObservable"
+
+{{!-- 
+/**
+ * Interface for the Analyzing Result
+ */
+export interface IAnalyzeResult {
+    // Name of the Class
+    className: string,
+    // Decorators of the Class
+    classDecorator: DecoratorInformation,
+    // Methods of the Class
+    methods: (MethodInformation & DecoratorInformation)[],
+    // Properties of the Class
+    properties: (PropertyInformation & DecoratorInformation)[],
+    // Imports of the Class (contians external Files)
+    imports: {
+        content: string,
+        required: boolean,
+    }
+}
+--}}
+{{#if imports.required}}
+{{{imports.content}}}
+{{/if}}
+
+export class {{className}} {
+
+    {{#each properties}}
+    public {{name}}: nopeRemoteObservable<{{{simplifiedSubType}}}>
+    {{/each}}
+
+    public readonly uri: string;
+
+    /**
+     * Creates an instance of the Class.
+     * @param _dispatcher The Dispatcher to use. 
+     */
+    constructor(protected _dispatcher: nopeDispatcher, uri?: string){
+        this.uri = typeof uri === "string" ? uri : '{{classUri}}'
+
+        {{#each properties}}
+        
+        this.{{name}} = new nopeRemoteObservable(_dispatcher,{
+            path: {{{uri}}}
+        })
+        {{/each}}
+    }
+    {{!-- 
+    Iterate over the Methods and create the Function Interface
+    --}}
+    {{#each methods}}
+
+    {{!-- Use the Docu of the Author --}}
+    {{{authorDescription}}}
+    public async {{name}}{{{head}}}{
+        // Perform the Method via the Dispatcher.
+        {{!-- Perform the Dispather-Call --}}
+        return await this._dispatcher.performCall<{{{returnType.simplifiedSubType}}}>({{{uri}}}, [{{#each params}}{{name}}{{#unless @last}}, {{/unless}}{{/each}}])
+    }
+    {{/each}}
+}

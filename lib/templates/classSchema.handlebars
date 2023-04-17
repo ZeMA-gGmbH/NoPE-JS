@@ -1,0 +1,28 @@
+// Automatic Genearted Interface Description for Backendclass: "{{className}}"
+// To update run `npm run build:backend`
+
+{{!-- Import the External Types --}}
+{{#if imports.required}}
+{{{imports.content}}}
+{{/if}}
+
+{{!-- Iterate over the Methods to define the input and Return Types --}}
+{{#each methods}}
+
+export interface {{name}}Input {
+{{#each params}}
+    {{authorDescription}}
+{{#if isBaseType}}
+    {{name}}{{#if isOptional}}?{{/if}}: {{{originalCode}}}
+{{/if}}
+{{#unless isBaseType}}
+    {{name}}{{#if isOptional}}?{{/if}}: {{{simplifiedType}}}
+{{/unless}}
+{{/each}}
+}
+
+{{#if hasReturnType}}
+export type {{name}}Output = {{{returnType.simplifiedSubType}}}
+{{/if}}
+
+{{/each}}

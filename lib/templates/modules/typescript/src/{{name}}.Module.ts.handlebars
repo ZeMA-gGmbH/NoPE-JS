@@ -1,0 +1,71 @@
+import { {{toInterface name}} } from "../types/interfaces";
+import { InjectableNopeBaseModule, NopePromise, nopeMethod, nopeProperty,NopeObservable } from "nope";
+import { injectable } from "inversify";
+
+@injectable()
+export class {{toModule name}} extends InjectableNopeBaseModule implements {{toInterface name}}
+{
+
+    {{#each properties}}
+    /**
+     * Property '{{this}}' is used to ...
+     * TODO: Add a description here!
+     */
+    // @ts-ignore
+    @nopeProperty({
+        mode: ["publish"],
+        topic: "{{this}}",
+        schema: {},
+    })
+    public {{this}} = new NopeObservable<{{toInterface name}}["{{this}}"]>();
+    {{/each}}
+
+    {{#each methods}}
+    /**
+     * The method '{{this}}' ...
+     * 
+     * TODO: Add a description here!
+     *
+     * @return {*}
+     */
+    @nopeMethod({
+        schema: {
+            type: "function",
+            inputs: [
+                // TODO: Add implementation here!
+            ],
+            outputs: {
+                // TODO: Add implementation here!
+            },
+        },
+    })
+    async {{this}}() {
+        // TODO: Add implementation here!
+        throw Error("Not implemented!")
+    }
+
+    {{/each}}
+
+    async init() {
+        this.author = {
+            forename: "{{firstup project.author.forename}}",
+            surename: "{{firstup project.author.surename}}",
+            mail: "{{project.author.mail}}"
+        };
+
+        this.description = "{{description}}";
+        this.version = {
+            date: new Date("{{now}}"),
+            version: {{project.version}},
+        };
+
+        await super.init();
+    }
+
+    async dispose() {
+        await super.dispose();
+        {{#each properties}}
+        this.{{this}}.dispose();
+        {{/each}}
+    }
+}

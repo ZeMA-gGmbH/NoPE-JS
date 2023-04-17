@@ -15,9 +15,9 @@ import { NopePackageLoader } from "./nopePackageLoader";
 
 /**
  * Function to extract the Package-Loader. This Package-Loader omits methods, that depends on a file-system.
- * 
+ *
  * This method should be used in a browser enviroment, otherwise use the function created for the Backend.
- * 
+ *
  * @param {INopeDispatcherOptions} dispatcherOptions The provided options for the Dispatcher
  * @param options Settings for the creation of the Dispatcher etc.
  * @returns {INopePackageLoader} The Package loader.
@@ -30,7 +30,7 @@ export function getPackageLoader(
      * This will ensure modularity.
      */
     packageLoaderConstructorClass?: INopePackageLoaderConstructor;
-    
+
     /**
      * If desired, the user is allowed ot change the Constructor of a Dipatcher.
      * This will ensure modularity.
@@ -38,14 +38,14 @@ export function getPackageLoader(
     dispatcherConstructorClass?: IDispatcherConstructor;
     /**
      * Flag to indicate, that there should be only 1 dispatcher per process. This
-     * is the default setting and it is recommended. (Its way faster due to the 
-     * communication overhead, created using a dispatcher). In special use-cases 
+     * is the default setting and it is recommended. (Its way faster due to the
+     * communication overhead, created using a dispatcher). In special use-cases
      * (e.g. testing ) it might be usefull to have full controll of the amount of
      * provided dispatchers.
      */
     singleton?: boolean;
     /**
-     * Flag to enable / Disable the usage of base-services for a dispatcher. 
+     * Flag to enable / Disable the usage of base-services for a dispatcher.
      * Please checkout {@link dispatcher.useBaseServices} to get an overview
      * of the defaultly implemented base-services.
      */

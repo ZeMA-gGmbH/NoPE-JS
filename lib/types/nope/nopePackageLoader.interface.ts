@@ -33,9 +33,9 @@ export interface INopePackageLoader {
 
   /**
    * Add a Description of a Package to the Loader.
-   * This results in hosting the contained services and 
+   * This results in hosting the contained services and
    * providing constructors for the shared classes.
-   * 
+   *
    * Additionally all defined instances of a pac
    *
    * @param {Array<IClassDescriptor>}  the Descriptions as Array.
@@ -56,10 +56,10 @@ export interface INopePackageLoader {
   ): Promise<void>;
 
   /**
-   * Functionality to add a complete Package. 
-   * This results in hosting the contained services and 
+   * Functionality to add a complete Package.
+   * This results in hosting the contained services and
    * providing constructors for the shared classes.
-   * 
+   *
    * Afterwards the provided instances can be created using
    * {@link INopePackageLoader.generateInstances}.
    *
@@ -72,16 +72,16 @@ export interface INopePackageLoader {
 
   /**
    * Internally the loader is build using inversify. InversifyJS is a powerful and lightweight
-   * inversion of control container for JavaScript & Node.js apps powered by TypeScript. 
-   * 
+   * inversion of control container for JavaScript & Node.js apps powered by TypeScript.
+   *
    * For more details about InversifyJS please checkout: https://inversify.io/
-   * 
-   * This Element contains a default inversify container 
+   *
+   * This Element contains a default inversify container
    */
   container: Container;
 
   /**
-   * This is a helper used during the Building process of 
+   * This is a helper used during the Building process of
    * utilizing inversify. This might be deprecated.
    * @deprecated
    */

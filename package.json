@@ -32,7 +32,15 @@
     "type": "git",
     "url": "git+https://github.com/ZeMA-gGmbH/NoPE-JS.git"
   },
-  "keywords": [],
+  "keywords": [
+    "rpc",
+    "framework",
+    "assembly systems",
+    "distributed system",
+    "microkernel",
+    "zema",
+    "publish and subscribe"
+  ],
   "author": "Martin Karkowski",
   "license": "MIT",
   "bugs": {

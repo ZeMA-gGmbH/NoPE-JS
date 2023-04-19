@@ -69,7 +69,7 @@ Get started by **creating a new project** distributed using `NoPE`.
   ```
   This should open a `cli` like that:
 
-  ![Tool](wiki/media/project-tool-init.png)
+  ![Tool](wiki/media/project-tool-init.PNG)
 
 3. Answer the requried questions to complete create the directory.
   - Name the project `HelloWorld`
@@ -81,7 +81,7 @@ Get started by **creating a new project** distributed using `NoPE`.
 
   This creates the following folder structure:
 
-  ![Folder.](wiki/media/project-folder-before.png)
+  ![Folder.](wiki/media/project-folder-before.PNG)
 
 5. Open your IDE (e.g. vscode)
 
@@ -113,7 +113,7 @@ Our goal is to define a greeting service
   nope-js project edit
   ```
 
-  ![Edit](wiki/media/edit-project.png)
+  ![Edit](wiki/media/edit-project.PNG)
 
 2. Perfom the following selection inside of the tool.
   1. Selection `add`, to add a new element
@@ -124,7 +124,7 @@ Our goal is to define a greeting service
 
   This will update our files in the Folder:
 
-  ![Folder.](wiki/media/project-folder-after.png)
+  ![Folder.](wiki/media/project-folder-after.PNG)
 
 Now `NoPE` defined a new service file (`HelloWorld.functions.ts`) for us:
 
@@ -252,7 +252,7 @@ nope-js run
 
 This should produce the following output.
 
-![Runtime](wiki/media/run-js.png)
+![Runtime](wiki/media/run-js.PNG)
 
 ## 4. Interact with the Runtime
 
@@ -296,7 +296,7 @@ To use the `interact`-**tool** follow the questions:
 
 7. The Tool shows the result (see 4)
 
-![Runtime](wiki/media/interact.png)
+![Runtime](wiki/media/interact.PNG)
 
 
 > You are now running a distributed System using **remote procedure calls**

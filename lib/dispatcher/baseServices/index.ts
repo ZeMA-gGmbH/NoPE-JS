@@ -40,35 +40,7 @@ export const SERVICES_NAME = {
  * @param {{
  *     services?: Array<keyof typeof SERVICES_NAME>;
  *   }} [opts]
- * @return {Promise<{
- *   manualSyncTime?: () => Promise<void>;
- *   determinePing?: (target: string) => Promise<{
- *     requestId: string;
- *     dispatcherId: string;
- *     timestamp: number;
- *     isMaster: boolean;
- *     ping: number;
- *   }>;
- *   pingAll?: () => Promise<{
- *     pings: Promise<{
- *       requestId: string;
- *       dispatcherId: string;
- *       timestamp: number;
- *       isMaster: boolean;
- *       ping: number;
- *     }>[];
- *     avg: number;
- *     max: {
- *       max: number;
- *       index: number;
- *     };
- *     min: {
- *       min: number;
- *       index: number;
- *     };
- *   }>;
- *   setMaster?: () => Promise<void>;
- * }>} The provided Functions.
+ * @return The provided Functions.
  */
 export async function addAllBaseServices(
   dispatcher: INopeDispatcher,

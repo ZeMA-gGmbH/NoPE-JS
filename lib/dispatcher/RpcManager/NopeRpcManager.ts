@@ -114,10 +114,10 @@ export class NopeRpcManager<T extends IServiceOptions = IServiceOptions>
    * Its more or less a map, that maps the
    * services with their dispatchers.
    *
-   * OriginalKey = Dispatcher ID (string);
-   * OriginalValue = Original Message (IAvailableServicesMsg);
-   * ExtractedKey = Function ID (string);
-   * ExtractedValue = FunctionOptions (T);
+   * - `OriginalKey` = Dispatcher ID (`string`)
+   * - `OriginalValue` = Original Message (`IAvailableServicesMsg`)
+   * - `ExtractedKey` = Function ID (`string`);`
+   * - `ExtractedValue` = FunctionOptions (`T`)
    *
    * @author M.Karkowski
    * @type {IMapBasedMergeData<string>}
@@ -293,7 +293,7 @@ export class NopeRpcManager<T extends IServiceOptions = IServiceOptions>
    * @protected
    * @param {IRequestRpcMsg} data The provided data of the request
    * @param {(...args) => Promise<any>} [_function]
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof NopeRpcManager
    */
   protected async _handleExternalRequest(
@@ -753,7 +753,7 @@ export class NopeRpcManager<T extends IServiceOptions = IServiceOptions>
   /**
    * Function to unregister a Function from the Dispatcher
    * @param {(((...args) => void) | string | number)} func The Function to unregister
-   * @return {*} {boolean} Flag, whether the element was removed (only if found) or not.
+   * @return {boolean} Flag, whether the element was removed (only if found) or not.
    * @memberof nopeDispatcher
    */
   public async unregisterService(
@@ -794,7 +794,7 @@ export class NopeRpcManager<T extends IServiceOptions = IServiceOptions>
    *     // Instead of generating a uuid an id could be provided
    *     id?: string;
    *   }} [options={}] Options to enhance the registered ID and enabling unregistering the Element after calling it.
-   * @return {*} {(...args) => Promise<any>} The registered Function
+   * @return {(...args) => Promise<any>} The registered Function
    * @memberof nopeDispatcher
    */
   public registerService(

@@ -89,9 +89,14 @@ export const DEFAULT_SETTINGS: RunArgs = {
 
 /**
  * Helper Function to Read-In the Arguments used by the
- * cli-tool
+ * cli-tool `run`
  *
- * @return {*}
+ * @export
+ * @async
+ * @param additionalArguments arguments for the `ArgumentParser`
+ * @param {Partial<RunArgs>} [forcedArgs={}] The settings to run the args.
+ * @param {ArgumentParser} [parser=null] An additional `ArgumentParser`. If not provided its created
+ * @returns {Promise<RunArgs>}
  */
 export async function readInArgs(
   additionalArguments: {
@@ -263,8 +268,14 @@ export async function readInArgs(
   return Object.assign(args, forcedArgs);
 }
 
-// Define the Main Function.
-// This function is used as cli tool.
+/**
+ * Main tool to create a runtime. Returns a {@link INopePackageLoader}.
+ * 
+ * 
+ * @async 
+ * @param {Partial<RunArgs>} [_args={}] Arguments to configure the runtime.
+ * @returns {Promise<INopePackageLoader>} The central logger.
+ */
 export async function runNopeBackend(
   _args: Partial<RunArgs> = {}
 ): Promise<INopePackageLoader> {

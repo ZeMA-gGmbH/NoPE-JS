@@ -193,10 +193,10 @@ export interface INopeInstanceManager {
   /**
    * Overview of the available instances in the network.
    *
-   * OriginalKey = DispatcherID (string);
-   * OriginalValue = Available Instance Messages (IAvailableInstancesMsg);
-   * ExtractedKey = The name of the Instance (string);
-   * ExtractedValue = instance-description (INopeModuleDescription);
+   * - `OriginalKey` = `DispatcherID (string);`
+   * - `OriginalValue` = `Available Instance Messages (IAvailableInstancesMsg);`
+   * - `ExtractedKey` = `The name of the Instance (string);`
+   * - `ExtractedValue` = `instance-description (INopeModuleDescription);`
    *
    *
    * @author M.Karkowski
@@ -446,7 +446,7 @@ export interface INopeInstanceManager {
    * Disposes all instances and the Manager.
    *
    * @author M.Karkowski
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof INopeInstanceManager
    */
   dispose(): Promise<void>;

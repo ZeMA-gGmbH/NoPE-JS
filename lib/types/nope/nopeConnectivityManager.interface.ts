@@ -279,10 +279,10 @@ export interface INopeConnectivityManager {
    * get the latest changes. Use the "data"
    * field, to subscribe for the latest data.
    *
-   * OriginalKey = Dispatcher ID;
-   * OriginalValue = INopeStatusInfo;
-   * ExtractedKey = Dispatcher ID;
-   * ExtractedValue = Dispatcher ID;
+   * - `OriginalKey` = Dispatcher ID`
+   * - `OriginalValue` = `INopeStatusInfo`
+   * - `ExtractedKey` = Dispatcher ID
+   * - `ExtractedValue` = Dispatcher ID
    *
    * @author M.Karkowski
    * @memberof INopeStatusManager
@@ -347,7 +347,7 @@ export interface INopeConnectivityManager {
    * Emitts a Bonjour Message.
    *
    * @author M.Karkowski
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof INopeStatusManager
    */
   emitBonjour(): Promise<void>;
@@ -365,7 +365,7 @@ export interface INopeConnectivityManager {
    *
    * @author M.Karkowski
    * @param {boolean} [quiet=false]
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof INopeStatusManager
    */
   dispose(quiet?: boolean): Promise<void>;

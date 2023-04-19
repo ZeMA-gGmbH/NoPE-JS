@@ -117,7 +117,7 @@ export interface INopeModule extends INopeModuleDescription {
    * @param {string} name Name of the Function
    * @param {(...args) => Promise<any>} method The Function
    * @param {IServiceOptions} options The Options used during subscription
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof IBaseModule
    */
   registerMethod(
@@ -130,7 +130,7 @@ export interface INopeModule extends INopeModuleDescription {
    * Function used to unregister a Function
    *
    * @param {string} name Name of the Function.
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof IBaseModule
    */
   unregisterFunction(name: string): Promise<void>;
@@ -145,7 +145,7 @@ export interface INopeModule extends INopeModuleDescription {
    * @param {string} name Name of the Property.
    * @param {INopeObservable<T, S, G>} observable The Observable.
    * @param {IEventOptions} options The Options which are used during registering the Observable.
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof IBaseModule
    */
   registerProperty<T, S = T, G = T>(

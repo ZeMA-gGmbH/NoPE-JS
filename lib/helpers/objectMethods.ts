@@ -563,7 +563,7 @@ export function recursiveForEach(
  *   splitchar?: string,
  *   maxDepth?: number,
  * }} [options={}]
- * @return {*}  {Map<string, string>} key = path; value = type of element;
+ * @return {Map<string, string>} `key` = `path`; `value` = `type of element` as string;
  */
 export function flattenObjectType(
   data: any,

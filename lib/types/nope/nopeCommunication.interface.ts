@@ -101,7 +101,7 @@ export interface ICommunicationInterface {
    * @template T
    * @param {T} eventname
    * @param {EventnameToEventType[T]} data
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof ICommunicationInterface
    */
   emit<T extends Eventname>(
@@ -143,7 +143,7 @@ export interface ICommunicationInterface {
   /**
    * Disconnect the Layer.
    *
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof ICommunicationInterface
    */
   dispose(): Promise<void>;

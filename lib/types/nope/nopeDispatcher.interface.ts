@@ -178,7 +178,7 @@ export interface INopeDispatcher extends INopeCore {
    * be available in the NoPE-Network.
    *
    * @author M.Karkowski
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof INopeDispatcher
    */
   dispose(): Promise<void>;

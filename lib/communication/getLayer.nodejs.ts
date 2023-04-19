@@ -45,7 +45,7 @@ export const layerDefaultParameters = {
  * @param {validLayerOrMirror} layer the layer to add
  * @param {(number | string)} [parameter=null] the parameter required for the additonal layer / mirror
  * @param {LoggerLevel} [logger=false] the level of the debugger
- * @return {*}  {ICommunicationBridge}
+ * @return {ICommunicationBridge} A bridge
  */
 export function getLayer(
   layer: validLayerOrMirror,

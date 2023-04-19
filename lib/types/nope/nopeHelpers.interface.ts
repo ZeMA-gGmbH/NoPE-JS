@@ -58,15 +58,15 @@ export interface IMapBasedMergeData<
 
   /**
    * Contains the Mapping of the original Key to the Extracted Key.
-   * key = OriginalKey;
-   * value = Set<ExtractedKey>;
+   * - `key` = `OriginalKey`;
+   * - `value` = `Set<ExtractedKey>`;
    */
   keyMapping: Map<OriginalKey, Set<ExtractedKey>>;
 
   /**
    * Contains the Mapping of the `extracted Key` to the `original Key`.
-   * key = ExtractedKey;
-   * value = OriginalKey;
+   * - `key` = `ExtractedKey`;
+   * - `value` = `OriginalKey`;
    */
   keyMappingReverse: Map<ExtractedKey, Set<OriginalKey>>;
 

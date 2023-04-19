@@ -26,7 +26,7 @@ export interface INopePackageLoader {
   /**
    * Resets the Package Loader
    *
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof INopePackageLoader
    */
   reset(): Promise<void>;
@@ -39,7 +39,7 @@ export interface INopePackageLoader {
    * Additionally all defined instances of a pac
    *
    * @param {Array<IClassDescriptor>}  the Descriptions as Array.
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof INopePackageLoader
    */
   addDescription(element: Array<IClassDescriptor>): Promise<void>;
@@ -48,7 +48,7 @@ export interface INopePackageLoader {
    * Function to add Activation Handlers.
    *
    * @param {(INopeActivationHanlder | Array<INopeActivationHanlder>)} handler
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof INopePackageLoader
    */
   addActivationHandler(
@@ -65,7 +65,7 @@ export interface INopePackageLoader {
    *
    *
    * @param {IPackageDescription<any>} element
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof INopePackageLoader
    */
   addPackage(element: IPackageDescription<any>): Promise<void>;

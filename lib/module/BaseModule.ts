@@ -184,7 +184,7 @@ export class NopeBaseModule implements INopeModule {
    * @param {string} name Name, which should be used to register the element. The Name will ALLWAYS (automatically) be assembled using the modules identifier an then the name.
    * @param {INopeObservable<T, S, G>} observable The Observable representing the Property
    * @param {IEventOptions<K>} options The Options used to define the registration.
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof NopeBaseModule
    */
   public async registerProperty<T, S = T, G = T>(
@@ -245,7 +245,7 @@ export class NopeBaseModule implements INopeModule {
    * @param {string} name Name, which should be used to register the element. The Name will ALLWAYS (automatically) be assembled using the modules identifier an then the name.
    * @param {INopeObservable<T, S, G>} emitter The Event(Emitter) representing the Property
    * @param {IEventOptions<K>} options The Options used to define the registration.
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof NopeBaseModule
    */
   public async registerEvent<T, S = T, G = T>(
@@ -300,7 +300,7 @@ export class NopeBaseModule implements INopeModule {
    * @param {string} name Name of the Method, which is used during registration at the dispatcher
    * @param {(...args: any[]) => Promise<any>} method The function itself. It must be async.
    * @param {IServiceOptions} options The Options, used for registering.
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof NopeBaseModule
    */
   public async registerMethod(
@@ -336,7 +336,7 @@ export class NopeBaseModule implements INopeModule {
    * Unregister a Function
    *
    * @param {string} name Name of the function used during registering.
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof NopeBaseModule
    */
   public async unregisterFunction(name: string): Promise<void> {
@@ -353,7 +353,7 @@ export class NopeBaseModule implements INopeModule {
    * Helper Function to unregister an Eventbased Property
    *
    * @param {string} name Name of the Property, that has been used to register.
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof NopeBaseModule
    */
   public async unregisterEvent(name: string): Promise<void> {
@@ -370,7 +370,7 @@ export class NopeBaseModule implements INopeModule {
    * Helper Function to unregister an Observable (a Property.)
    *
    * @param {string} name Name of the Property, that has been used to register.
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof NopeBaseModule
    */
   public async unregisterProperty(name: string): Promise<void> {
@@ -384,9 +384,7 @@ export class NopeBaseModule implements INopeModule {
   }
 
   /**
-   * Function to return all available Methods.
-   *
-   * @return {*}  {Promise<{ func: (...args: any[]) => Promise<any>; options: IServiceOptions; }[]>}
+   * Function to return all available Methods.   *
    * @memberof NopeBaseModule
    */
   public async listMethods() {
@@ -395,8 +393,6 @@ export class NopeBaseModule implements INopeModule {
 
   /**
    * Function used to list all available Properties.
-   *
-   * @return {*}  {Promise<Array<{ observable: INopeObservable<any>, options: IPropertyOptions }>>}
    * @memberof NopeBaseModule
    */
   public async listProperties(): Promise<
@@ -408,7 +404,7 @@ export class NopeBaseModule implements INopeModule {
   /**
    * Function used to list all available Properties.
    *
-   * @return {*}  {Promise<Array<{ observable: INopeObservable<any>, options: IPropertyOptions }>>}
+   * @return {Promise<Array<{ observable: INopeObservable<any>, options: IPropertyOptions }>>}
    * @memberof NopeBaseModule
    */
   public async listEvents(): Promise<
@@ -420,7 +416,7 @@ export class NopeBaseModule implements INopeModule {
   /**
    * An init Function. Used to initialize the Element.
    *
-   * @return {*}  {Promise<void>}
+   * @return {Promise<void>}
    * @memberof NopeBaseModule
    */
   public async init(...args): Promise<void> {

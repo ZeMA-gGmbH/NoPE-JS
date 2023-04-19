@@ -133,10 +133,10 @@ export class NopeInstanceManager implements INopeInstanceManager {
    * Its more or less a map, that maps the
    * instances with their dispatchers.
    *
-   * originalKey = DispatcherID (string);
-   * originalValue = Available Instance Messages (IAvailableInstancesMsg);
-   * extractedKey = The name of the Instance (string);
-   * extractedValue = instance-description (INopeModuleDescription);
+   * - `originalKey` = DispatcherID (`string`);
+   * - `originalValue` = Available Instance Messages (`IAvailableInstancesMsg`);
+   * - `extractedKey` = The name of the Instance (`string`);`
+   * - `extractedValue` = instance-description (`INopeModuleDescription`);
    *
    * @author M.Karkowski
    * @type {IMapBasedMergeData<

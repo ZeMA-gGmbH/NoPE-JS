@@ -157,10 +157,10 @@ export interface INopeRpcManager<T extends IServiceOptions = IServiceOptions> {
   /**
    * Element showing the available services.
    *
-   * OriginalKey = Dispatcher ID (string);
-   * OriginalValue = Original Message (IAvailableServicesMsg);
-   * ExtractedKey = Function ID (string);
-   * ExtractedValue = FunctionOptions (T);
+   * - `OriginalKey` = Dispatcher ID (string);
+   * - `OriginalValue` = Original Message (IAvailableServicesMsg);
+   * - `ExtractedKey` = Function ID (string);
+   * - `ExtractedValue` = FunctionOptions (T);
    *
    * @author M.Karkowski
    * @type {IMapBasedMergeData<T>}
@@ -247,16 +247,9 @@ export interface INopeRpcManager<T extends IServiceOptions = IServiceOptions> {
    *
    * @author M.Karkowski
    * @template T
-   * @param {(...args) => Promise<T>} func
-   * @param {{
-   *     // Flag to enable unregistering the function after calling.
-   *     deleteAfterCalling?: boolean;
-   *     // Instead of generating a uuid an id could be provided
-   *     id?: string;
-   *     // Flag to enable / disable sending to registery
-   *     preventSendingToRegistery?: boolean;
-   *   }} options
-   * @return {*}  {(...args) => Promise<T>}
+   * @param {(...args) => Promise<T>} func The Function
+   * @param options used during the service call.
+   * @return {(...args) => Promise<T>}
    * @memberof INopeRpcManager
    */
   registerService<T>(
@@ -295,7 +288,7 @@ export interface INopeRpcManager<T extends IServiceOptions = IServiceOptions> {
    *     quiet?: boolean;
    *     preventSelector?: boolean;
    *   })} options
-   * @return {*}  {INopePromise<T>}
+   * @return {INopePromise<T>}
    * @memberof INopeRpcManager
    */
   performCall<T>(

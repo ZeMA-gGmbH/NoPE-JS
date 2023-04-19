@@ -14,7 +14,10 @@ import {
 } from "../types/nope/nopeDispatcher.interface";
 import { addAllBaseServices } from "./baseServices";
 import { NopeDispatcher } from "./nopeDispatcher";
-import { IexportAsNopeServiceParameters } from "../decorators/index";
+import {
+  IexportAsNopeServiceParameters,
+  getCentralDecoratedContainer,
+} from "../decorators/index";
 
 export type TAdditionalOptions = {
   /**
@@ -104,22 +107,13 @@ export function getDispatcher(
 
     if (options.useLinkedServices) {
       // Define a Container, which contains all functions.
-      const container = getSingleton("nopeBackendDispatcher.container", () => {
-        return new Map<
-          string,
-          {
-            uri: string;
-            callback: (...args) => Promise<any>;
-            options: IexportAsNopeServiceParameters;
-          }
-        >();
-      });
+      const container = getCentralDecoratedContainer();
 
       // If the Dispatcher has been connected, register all functions.
       dispatcher.ready.waitFor().then(() => {
         if (dispatcher.ready.getContent()) {
           // Iterate over the Functions
-          for (const [uri, settings] of container.instance.entries()) {
+          for (const [uri, settings] of container.services.entries()) {
             dispatcher.rpcManager.registerService(settings.callback, {
               ...settings.options,
               id: uri,

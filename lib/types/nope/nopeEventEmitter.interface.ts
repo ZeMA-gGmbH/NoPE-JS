@@ -6,14 +6,13 @@
 
 import { Subscription } from "rxjs";
 
-
 /**
- * The Definition of a callback which can be used in the `waitFor` (see {@link INopeEventEmitter.waitFor}) method of 
- * an {@link INopeEventEmitter} or an {@link nope.types.INopeObservable} 
- * 
+ * The Definition of a callback which can be used in the `waitFor` (see {@link INopeEventEmitter.waitFor}) method of
+ * an {@link INopeEventEmitter} or an {@link nope.types.INopeObservable}
+ *
  * @export
  * @typedef {IWaitForCallback}
- * @template T The Type, the callback receives. This type depends of the 
+ * @template T The Type, the callback receives. This type depends of the
  * @template AD The Additional Data that is reicved. (see {@link IEventAdditionalData})
  */
 export type IWaitForCallback<
@@ -22,24 +21,24 @@ export type IWaitForCallback<
 > = (content: T | null, options: Partial<AD>) => boolean | Promise<boolean>;
 
 /**
- * Declaration of the Options used in the `waitFor` (see {@link INopeEventEmitter.waitFor}) method of 
- * an {@link INopeEventEmitter} or an {@link nope.types.INopeObservable} 
+ * Declaration of the Options used in the `waitFor` (see {@link INopeEventEmitter.waitFor}) method of
+ * an {@link INopeEventEmitter} or an {@link nope.types.INopeObservable}
  */
 export interface INopeWaitForEventOptions {
   /**
-   * The Style, how the callback should be called. 
-   * use `"immediate"` to prevent cycles. 
-   * 
+   * The Style, how the callback should be called.
+   * use `"immediate"` to prevent cycles.
+   *
    * Normaly this options is selected by the system.
    */
   subscriptionMode?: "immediate" | "sync";
   /**
-   * If the Emitter is connected to the pubsubsystem (see {@link nope.pubSub}) 
-   * message can be shared in different ways: 
+   * If the Emitter is connected to the pubsubsystem (see {@link nope.pubSub})
+   * message can be shared in different ways:
    * 1. A Change may be emitted by a parent emitter (e.g. `topic/of/emitter`; event emitted on `topic`) `->` use the mode `super`
    * 2. A Change may be emitted by an emitter on the same topic (e.g. `topic/of/emitter`; event emitted  on `topic/of/emitter`) `->` use the mode `direct`
    * 3. A Change may be emitted by a child emitter (e.g. `topic/of/emitter`; event emitted on `topic/of/emitter/subtopic`) `->` use the mode `sub`
-   * 
+   *
    * Defaultly on all type of changes the wait method will be react.
    */
   triggerMode?: Array<"sub" | "super" | "direct">;
@@ -52,7 +51,7 @@ export interface INopeWaitForEventOptions {
 /**
  * The Observer which can be used to controll the `Subscription`, which will be received after performing
  * the `subscribe` (see {@link INopeEventEmitter.subscribe}) method
- * an {@link INopeEventEmitter} or an {@link nope.types.INopeObservable} 
+ * an {@link INopeEventEmitter} or an {@link nope.types.INopeObservable}
  */
 export interface INopeObserver extends Subscription {
   options: INopeSubscriptionOptions;
@@ -68,24 +67,24 @@ export interface INopeObserver extends Subscription {
 
 export interface INopeSubscriptionOptions {
   /**
-   * The Style, how the callback should be called. 
-   * use `"immediate"` to prevent cycles. 
-   * 
+   * The Style, how the callback should be called.
+   * use `"immediate"` to prevent cycles.
+   *
    * Normaly this options is selected by the system.
    */
   type?: "immediate" | "sync";
   /**
-   * If the Emitter is connected to the pubsubsystem (see {@link nope.pubSub}) 
-   * message can be shared in different ways: 
+   * If the Emitter is connected to the pubsubsystem (see {@link nope.pubSub})
+   * message can be shared in different ways:
    * 1. A Change may be emitted by a parent emitter (e.g. `topic/of/emitter`; event emitted on `topic`) `->` use the mode `super`
    * 2. A Change may be emitted by an emitter on the same topic (e.g. `topic/of/emitter`; event emitted  on `topic/of/emitter`) `->` use the mode `direct`
    * 3. A Change may be emitted by a child emitter (e.g. `topic/of/emitter`; event emitted on `topic/of/emitter/subtopic`) `->` use the mode `sub`
-   * 
+   *
    * Defaultly on all type of changes the wait method will be react.
    */
   mode?: Array<"sub" | "super" | "direct">;
   /**
-   * Skips the current value during an subscription. This is relevant for 
+   * Skips the current value during an subscription. This is relevant for
    * {@link nope.types.INopeObservable}. `Subscriptions` on {@link INopeEventEmitter}
    * will only get informed on an updates. Events are not persitent.
    */
@@ -122,22 +121,22 @@ export interface IEventAdditionalData {
 
 /**
  *
- * An EventEmitter is used to share Events in the System. Therefore the Eventemitter provides the method: 
- * `emit`, which will emit an event. 
- * 
+ * An EventEmitter is used to share Events in the System. Therefore the Eventemitter provides the method:
+ * `emit`, which will emit an event.
+ *
  * Observers subscribe to that event an will receive an **notification** using a callback and subscribing
  * to an event (see {@link INopeEventEmitter.subscribe}). If they are temporarily are not interessed the
- * observer can use the `pause` (and `unpause`) Methods to temporarily controll the subscription. If the 
+ * observer can use the `pause` (and `unpause`) Methods to temporarily controll the subscription. If the
  * subscription isnt used any more, the method `unsubscribe` will be used to unsubscribe from the emitter.
- * 
+ *
  * > `Subscriptions` on {@link INopeEventEmitter} will only get informed on an updates. Events are not persitent.
- * 
- * To adapt and controll the events before publishing, a custom `setter` can be assigned (see 
+ *
+ * To adapt and controll the events before publishing, a custom `setter` can be assigned (see
  * {@link INopeEventEmitter.setter}). This setter is used to determine, whether the event should be published
- * or not. 
- * 
+ * or not.
+ *
  * During subscribing to the emitter, you receive an {@link INopeObserver}
- * 
+ *
  *
  * @export
  * @interface INopeEventEmitter
@@ -165,12 +164,12 @@ export interface INopeEventEmitter<
 
   /**
    * Property, a custom setter.
-   * 
+   *
    * This setter is used to determine, whether the event should be published or not
    * Therefore it is implemented as callback, which has to return the adpated `data`,
-   * and a flag, which shows whether the `data` is `valid` or not. If the data is 
+   * and a flag, which shows whether the `data` is `valid` or not. If the data is
    * marked es invalid, the event wont be published.
-   * 
+   *
    * If not required the setter must be set to `null`
    */
   setter:
@@ -198,7 +197,7 @@ export interface INopeEventEmitter<
   emit(value: S | null, options?: Partial<AD>): boolean;
 
   /**
-   * Flag to Disable Publishing of the emitter. This results in 
+   * Flag to Disable Publishing of the emitter. This results in
    * **not** inform the relevant subscriber / observers.
    */
   disablePublishing: boolean;
@@ -243,9 +242,9 @@ export interface INopeEventEmitter<
   ): Promise<G>;
 
   /**
-   * Async Function to Wait for an Update. No specific condition must match. 
+   * Async Function to Wait for an Update. No specific condition must match.
    * The code will be just awaited until an updat is received.
-   * 
+   *
    * @param mode Mode of the Subscription
    * @param options Additional Options for the Wait Function.
    */
@@ -255,7 +254,7 @@ export interface INopeEventEmitter<
    * Flag, showing if there exists any subscription this particular observer.
    */
   readonly hasSubscriptions: boolean;
-  
+
   /**
    * Returns the amout of interessed Subscribers / Observers.
    *

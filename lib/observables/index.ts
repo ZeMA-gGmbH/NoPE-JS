@@ -3,7 +3,7 @@
  * @author Martin Karkowski
  * @email m.karkowski@zema.de
  * This module contains a default implementation for a {@link INopeObservable}.
- * 
+ *
  * Please checkout the {@link INopeObservable} for an example.
  */
 

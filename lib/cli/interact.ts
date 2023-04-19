@@ -153,6 +153,7 @@ export async function interact(
         channel: args.channel,
         channelParams: args.params,
         id: "nope-interact-tool",
+        useBaseServices: true,
       },
       true
     );
@@ -262,7 +263,7 @@ export async function interact(
           },
           {
             name: "constructors -           Show available Constructors",
-            value: "show-services",
+            value: "show-constructors",
             type: "item",
             async onSelect() {
               if (
@@ -283,7 +284,7 @@ export async function interact(
                   );
                 }
               } else {
-                console.log("No services are available.");
+                console.log("No constructor are available.");
               }
             },
           },
@@ -301,6 +302,27 @@ export async function interact(
                   .getContent()
                   .map((service) => service.id);
                 for (const [idx, id] of serviceIds.entries()) {
+                  console.log(
+                    ` ${padString(idx + 1, length + 1, true)}.\t${id}`
+                  );
+                }
+              } else {
+                console.log("No services are available.");
+              }
+            },
+          },
+          {
+            name: "base-services -          Show available Services",
+            value: "show-base-services",
+            type: "item",
+            async onSelect() {
+              const baseServices: string[] = Object.getOwnPropertyNames(
+                dispatcher["services"] || {}
+              );
+              if (baseServices.length > 0) {
+                console.log("The following base services are available:");
+                const length = baseServices.length;
+                for (const [idx, id] of baseServices.entries()) {
                   console.log(
                     ` ${padString(idx + 1, length + 1, true)}.\t${id}`
                   );
@@ -402,7 +424,7 @@ export async function interact(
         value: "execute",
         items: [
           {
-            name: "execute-service -   Execute a service",
+            name: "execute-service -      Execute a service",
             value: "execute-service",
             type: "item",
             async onSelect() {
@@ -444,16 +466,73 @@ export async function interact(
 
                 console.log(parameters);
 
-                await dispatcher.rpcManager.performCall(service, parameters, {
-                  timeout: 5000,
-                });
+                try {
+                  const result = await dispatcher.rpcManager.performCall(
+                    service,
+                    parameters,
+                    {
+                      timeout: 5,
+                    }
+                  );
+
+                  console.log("Received the following result:");
+                  console.log("\n> ", result, "\n");
+                } catch (e) {
+                  console.error("An Error occurd during the call");
+                  console.error(e);
+                }
               } else {
-                console.log("No services are available.");
+                console.error("No services are available.");
               }
             },
           },
           {
-            name: "execute-instance -  Execute a service of a instance",
+            name: "execute-base-service - Execute a service",
+            value: "execute-base-service",
+            type: "item",
+            async onSelect() {
+              const services: string[] = Object.getOwnPropertyNames(
+                dispatcher["services"] || {}
+              );
+
+              if (services.length > 0) {
+                const service = (
+                  await inquirer.prompt([
+                    {
+                      type: "search-list",
+                      message: "Select the operation service to perform",
+                      name: "service",
+                      choices: services.sort(),
+                    },
+                  ])
+                ).service;
+
+                const func = dispatcher["services"][service];
+
+                console.log(`The schema of "${service}" is not know.`);
+
+                console.log("Please enter the paramters based on the schema");
+
+                const parameters = await getJsonInput();
+
+                console.log(parameters);
+
+                try {
+                  const result = await func(...parameters);
+
+                  console.log("Received the following result:");
+                  console.log("\n> ", result, "\n");
+                } catch (e) {
+                  console.error("An Error occurd during the call");
+                  console.error(e);
+                }
+              } else {
+                console.error("No services are available.");
+              }
+            },
+          },
+          {
+            name: "execute-instance -     Execute a service of a instance",
             value: "execute-instance",
             type: "item",
             async onSelect() {
@@ -559,7 +638,7 @@ export async function interact(
             },
           },
           {
-            name: "create-instance -   Creates a new instance",
+            name: "create-instance -      Creates a new instance",
             value: "create-instance",
             type: "item",
             async onSelect() {

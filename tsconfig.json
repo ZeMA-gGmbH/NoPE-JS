@@ -41,7 +41,7 @@
       "lib/analyzers/**"
     ],
     "skipErrorChecking": true,
-    "media": "wiki/rendered/"
+    "media": "wiki/rendered/",
   },
   "include": [
     "lib",

@@ -500,3 +500,10 @@ Inital commit, which is working with the browser
   - Modifying:
     - removing `getLinkedDispatcher` this functionality is now added in the default `getDispatcher` method.
     - Changing the templates for the public release. 
+    - RPC - Manager raises an Error if a service already has been added.
+  - Fixes:
+    - fixing `nope-js interact`. calling service works correct.
+      - adding base services
+    - fixing templates of `nope-js project`
+  - Adding:
+    - RpcManager now has the function:  `isProviding` to test, whether a service has been provided by that RpcManager

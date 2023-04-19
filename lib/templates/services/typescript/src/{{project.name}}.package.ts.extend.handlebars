@@ -1,11 +1,11 @@
 // Import the Service
 
-import { {{ name }} } from "./{{name}}.functions" 
+import { _{{toService name}} } from "./{{name}}.functions" 
 
-// add the Service
-providedServices.push({
-  service: {{ name }},
-  options: {
-    id: "{{ name }}",
-  }
-});
+// add the Service (this isnt necessary, as long as you load the file.)
+// providedServices.push({
+//   service: _{{toService name}},
+//   options: {
+//     id: "{{ name }}",
+//   }
+// });

@@ -1,10 +1,10 @@
-from {{name}}Function import {{name}}
+import {{project.name}}.{{name}}Function as {{name}}FunctionFile
 
 providedServices.append(
     ProvidedService(
-        {{name}},
+        {{name}}FunctionFile.{{name}},
         ServiceOptions(
-            schema={},
+            schema={{name}}FunctionFile.SCHEMA,
             id="{{name}}"
         )
     )

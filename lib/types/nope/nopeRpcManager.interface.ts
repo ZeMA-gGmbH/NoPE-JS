@@ -228,11 +228,19 @@ export interface INopeRpcManager<T extends IServiceOptions = IServiceOptions> {
    * Simple helper to find the existing Services
    *
    * @author M.Karkowski
-   * @param {string} id
-   * @return {*}  {boolean}
+   * @param {string} id The id of the service, which is used during registration
+   * @return {boolean} The result
    * @memberof INopeRpcManager
    */
   serviceExists(id: string): boolean;
+
+  /**
+   * Simple checker, to test, if this rpc-mananger is providing a service with the given id.
+   *
+   * @param id The id of the service, which is used during registration
+   * @return {boolean} The result
+   */
+  isProviding(id: string): boolean;
 
   /**
    * Registers a function

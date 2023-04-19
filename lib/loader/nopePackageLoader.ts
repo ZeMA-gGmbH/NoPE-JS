@@ -707,6 +707,27 @@ export class NopePackageLoader implements INopePackageLoader {
   }
 
   /**
+   * Helper to provide all linked services.
+   */
+  async provideLinkedServices(): Promise<void> {
+    // Define a Container, which contains all functions.
+    const container = getCentralDecoratedContainer();
+
+    // If the Dispatcher has been connected, register all functions.
+    await this.dispatcher.ready.waitFor();
+
+    // Iterate over the Functions
+    for (const [uri, settings] of container.services.entries()) {
+      if (!this.dispatcher.rpcManager.isProviding(uri)) {
+        await this.dispatcher.rpcManager.registerService(settings.callback, {
+          ...settings.options,
+          id: uri,
+        });
+      }
+    }
+  }
+
+  /**
    * Function to load all decorated elements with the decorators `exportAsNopeService`
    *
    * @param options

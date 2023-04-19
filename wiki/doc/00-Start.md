@@ -195,7 +195,7 @@ Dies wird in der unten stehenden Abbildung verdeutlicht
 
 `NoPE` dient zur Sicherstellung der Konnektivität der einzelnen Teilkomponenten. Dazu wird ein standardisiertes Kommunikations-Layer verwendet. Damit wird die erforderliche technische Kommunikation (bspw. RPC-Aufrufe, Event-Forwarding, Data-Propagation) zwischen den Modulen ermöglicht. Vereinfacht soll dieser Zusammenhang in der nachfolgenden Abbildung verdeutlicht werden. 
 
-![](./img/`NoPE`-network.png)
+![](./img/nope-network.png)
 
 Fachlich kann folgende Kontexteingrenzung getroffen werden:
 - `NoPE` stellt ein Konzept zur Konfiguration bereit: 

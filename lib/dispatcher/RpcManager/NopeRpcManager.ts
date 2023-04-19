@@ -728,6 +728,16 @@ export class NopeRpcManager<T extends IServiceOptions = IServiceOptions>
   }
 
   /**
+   * Simple checker, to test, if this rpc-mananger is providing a service with the given id.
+   *
+   * @param id The id of the service, which is used during registration
+   * @return {boolean} The result
+   */
+  public isProviding(id: string): boolean {
+    return this._registeredServices.has(id);
+  }
+
+  /**
    * Function to adapt a Request name.
    * Only used internally
    *
@@ -803,6 +813,16 @@ export class NopeRpcManager<T extends IServiceOptions = IServiceOptions>
     // Make shure we assign our id
     options.id = _id;
 
+    if (
+      this.isProviding(options.id) &&
+      this._registeredServices.get(options.id).func != func
+    ) {
+      const err = Error(`The service "${_id}" is already declared!`);
+      this._logger.error(`The service "${_id}" is already declared!`);
+      this._logger.error(err);
+      throw err;
+    }
+
     let _func = func;
 
     if (!this.__warned && !isAsyncFunction(func)) {
@@ -821,7 +841,7 @@ export class NopeRpcManager<T extends IServiceOptions = IServiceOptions>
       return _this.unregisterService(_id);
     };
 
-    // Reister the Function
+    // Register the Function
     this._registeredServices.set((_func as any).id, {
       options: options as T,
       func: _func,

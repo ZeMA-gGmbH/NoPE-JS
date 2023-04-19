@@ -36,9 +36,7 @@ export function exportAsNopeService<T>(
     }
 
     CONTAINER.services.set(options.id, {
-      callback: async (...args) => {
-        return await (func as any)(...args);
-      },
+      callback: func as any,
       options,
       uri: options.id || (func as any).name,
     });

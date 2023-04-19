@@ -6,10 +6,36 @@ from nope import exportAsNopeService, getNopeLogger
 
 LOGGER = getNopeLogger("{{name}}Service")
 
-@exportAsNopeService({
-    "id": "{{name}}",
-    "schema": {},
-})
+# Please provide the schema for the Function.
+# See the Example below.
+SCHEMA = {
+    "type": "function",
+        
+    # To describe the used inputs of a function or serive we added the field "inputs" to the schema.
+    # It contains a list of all required inputs.
+    "inputs": [
+        {
+            # The Description of the Parameter
+            "description": "The name which should receive a Greeting",
+            # Its used name in the function (see the arguments of the function)
+            "name": "greetings",
+            # The Schema follows a default JSON-Schema
+            "schema": {
+                "type": "string"
+            }
+        }
+    ],
+    # To describe the return of a function we added the field "outputs". It contains a 
+    # JSON-Schema Object.
+    "outputs":{
+        "type": "string",
+
+        # We provide some extra Info for the other users.
+        "description": "The greeting Message!"
+    }
+}
+
+
 async def {{name}}(greetings: str):
     # Please overwrite me!
     LOGGER.debug("calling service '{{name}}' with the following parameters:" + str(greetings))

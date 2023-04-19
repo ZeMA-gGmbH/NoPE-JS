@@ -209,8 +209,15 @@ export async function loadPackages(
   }
 
   if (delay > 0) {
-    logger.info(`Waiting ${delay} [s] before creating instances.`);
-    await sleep(delay * 1000);
+    logger.info(`Waiting ${delay / 2} [s] before hosting services.`);
+    await sleep(delay * 500);
+  }
+
+  await loader.generateInstances();
+
+  if (delay > 0) {
+    logger.info(`Waiting ${delay / 2} [s] before creating instances.`);
+    await sleep(delay * 500);
   }
 
   // Generate the instances.
@@ -291,11 +298,6 @@ export async function loadFunctions(
   await loader.addDecoratedElements({
     consider: ["services"],
   });
-
-  if (delay > 0) {
-    logger.info(`Waiting ${delay} [s] before creating instances.`);
-    await sleep(delay * 1000);
-  }
 
   return successfull;
 }

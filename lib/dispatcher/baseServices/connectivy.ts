@@ -30,28 +30,30 @@ export async function generatePingServices(dispatcher: INopeDispatcher) {
 
   logger.info("Adding 'ping' service!");
 
-  // Registers the Ping Method at the Dispatcher.
-  await dispatcher.rpcManager.registerService(ping, {
-    id: serviceName,
-    schema: {
-      inputs: [],
-      outputs: {
-        type: "object",
-        properties: {
-          dispatcherId: {
-            type: "string",
-            description: "Id of the responding Dispatcher",
-          },
-          timestamp: {
-            type: "number",
-            description: "UTC-Timestamp of the system which is responding",
+  if (!dispatcher.rpcManager.isProviding(serviceName)) {
+    // Registers the Ping Method at the Dispatcher.
+    await dispatcher.rpcManager.registerService(ping, {
+      id: serviceName,
+      schema: {
+        inputs: [],
+        outputs: {
+          type: "object",
+          properties: {
+            dispatcherId: {
+              type: "string",
+              description: "Id of the responding Dispatcher",
+            },
+            timestamp: {
+              type: "number",
+              description: "UTC-Timestamp of the system which is responding",
+            },
           },
         },
+        type: "function",
+        description: "Ping",
       },
-      type: "function",
-      description: "Ping",
-    },
-  });
+    });
+  }
 
   return await generatePingAccessors(dispatcher);
 }
@@ -128,7 +130,7 @@ export async function generatePingAccessors(dispatcher: INopeDispatcher) {
  * @return {*} The Sync-Method to call
  */
 export async function enableTimeSyncing(dispatcher: INopeDispatcher) {
-  if (!dispatcher.rpcManager.serviceExists(`nope/baseService/ping`)) {
+  if (!dispatcher.rpcManager.isProviding(`nope/baseService/ping`)) {
     await generatePingServices(dispatcher);
   }
 

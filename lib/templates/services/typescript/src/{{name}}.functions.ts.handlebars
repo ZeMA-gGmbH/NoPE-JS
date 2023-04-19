@@ -3,11 +3,14 @@ import { exportAsNopeService, getNopeLogger } from "nope-js-node";
 
 const logger = getNopeLogger("{{name}}-service")
 
-export const {{name}}: {{toService name}} =  exportAsNopeService(async function (greetings: string) {
+export async function _{{toService name}} (greetings: string) {
     // Please overwrite me.
     logger.debug("calling service '{{name}}' with the following parameters:", greetings)
     return "Hello " + greetings + "!"
-}, {
+}
+
+// The exported Service.
+export const {{name}}: {{toService name}} =  exportAsNopeService(_{{toService name}}, {
     id: "{{name}}",
     schema: {},
 });

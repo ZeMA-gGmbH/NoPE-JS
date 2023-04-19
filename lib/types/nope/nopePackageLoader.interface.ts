@@ -107,6 +107,14 @@ export interface INopePackageLoader {
   generateInstances(testRequirements?: boolean): Promise<void>;
 
   /**
+   * Generates all linked services.
+   *
+   * @return {Promise<void>}
+   * @memberof INopePackageLoader
+   */
+  provideLinkedServices(): Promise<void>;
+
+  /**
    * Helper to add the decorated Elements.
    * @param options
    */

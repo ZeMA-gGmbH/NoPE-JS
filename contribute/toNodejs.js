@@ -19,7 +19,7 @@ package.bin = {
   "nope-js": "./bin/nope"
 };
 
-package.name = "nope-js"
+package.name = "nope-js-node"
 package.main = "dist-nodejs/index.nodejs.js";
 package.version = version;
 package.files = [

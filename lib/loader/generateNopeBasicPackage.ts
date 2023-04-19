@@ -66,6 +66,7 @@ export function generateNopeBasicPackage(
           // type: !singleton ? InjectableNopeDispatcher : getDispatcher(options, null, singleton),
           type: getDispatcher(options, {
             singleton,
+            useLinkedServices: true,
           }),
           options: {
             // Shouldn't be required:

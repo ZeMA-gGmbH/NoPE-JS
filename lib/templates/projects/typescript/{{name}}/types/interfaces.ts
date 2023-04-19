@@ -1,1 +1,1 @@
-import { INopeObservable } from "nope";
+import { INopeObservable } from "nope-js-node";

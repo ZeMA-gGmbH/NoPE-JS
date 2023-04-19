@@ -160,11 +160,9 @@ export async function readInArgs(
     help:
       "The default-selector to select the service providers. Possible Values are: " +
       // Display all Options:
-      Object.getOwnPropertyNames(ValidDefaultSelectors)
-        .map((item) => {
-          return '"' + item + '"';
-        })
-        .join(", "),
+      ValidDefaultSelectors.map((item) => {
+        return '"' + item + '"';
+      }).join(", "),
     default: "first",
     type: "str",
     dest: "defaultSelector",

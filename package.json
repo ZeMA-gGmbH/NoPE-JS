@@ -46,7 +46,7 @@
   "bugs": {
     "url": "https://github.com/ZeMA-gGmbH/NoPE-JS/issues"
   },
-  "homepage": "https://github.com/ZeMA-gGmbH/NoPE-JS/issues#README",
+  "homepage": "https://github.com/ZeMA-gGmbH/NoPE-JS/#README",
   "dependencies": {
     "argparse": "^2.0.1",
     "async": "^3.2.4",
@@ -100,8 +100,8 @@
     "npm-check-updates": "^16.6.2",
     "onchange": "^7.1.0",
     "prettier": "2.8.1",
-    "typedoc": "^0.23.23",
-    "typedoc-plugin-mermaid": "^1.9.0",
+    "typedoc": "^0.24.4",
+    "typedoc-plugin-mermaid": "^1.10.0",
     "typedoc-umlclass": "^0.7.0",
     "typescript": "^4.9.4",
     "webpack": "^4.46.0",

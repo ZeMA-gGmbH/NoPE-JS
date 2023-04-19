@@ -90,6 +90,7 @@ export interface IProjectFile {
     repo: string;
     created: boolean;
   };
+  currentNopeVersion: "1.6.8";
 }
 
 export function generateDefaultProject(): IProjectFile {
@@ -108,6 +109,7 @@ export function generateDefaultProject(): IProjectFile {
       mail: "",
     },
     depencies: [],
+    currentNopeVersion: "1.6.8",
   };
 }
 
@@ -370,6 +372,7 @@ if (require.main === module) {
       dirName: "test_python",
       version: "1.0",
       type: "python",
+      currentNopeVersion: "1.6.8",
     };
 
     await createProject(settings, "../temp", logger);

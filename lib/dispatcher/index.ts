@@ -76,5 +76,4 @@ export {
 } from "../decorators/index";
 export * from "../types/nope/nopeDispatcher.interface";
 export { getDispatcher } from "./getDispatcher";
-export { getLinkedDispatcher } from "./getLinkedDispatcher";
 export { baseServices, connectivityManager, instanceManager, rpcManager };

@@ -495,3 +495,8 @@ Inital commit, which is working with the browser
     - `lib/cli/interact.ts`: Now enables to select the data pathes.
     - `lib/dispatcher/baseServices/connectivy.ts`: Fixing `pingAll` Service.
     - `lib/dispatcher/baseServices/index.ts`: Fixing `addAllBaseServices` Service.
+
+# 1.7.0
+  - Modifying:
+    - removing `getLinkedDispatcher` this functionality is now added in the default `getDispatcher` method.
+    - Changing the templates for the public release. 

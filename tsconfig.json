@@ -27,12 +27,12 @@
       "lib/index.nodejs.ts"
     ],
     "out": "docs",
-    "umlClassDiagram": {
-      "type": "detailed",
-      "location": "local",
-      "format": "png",
-      "umlClassDiagrammemberOrder": "abc"
-    },
+    // "umlClassDiagram": {
+    //   "type": "detailed",
+    //   "location": "local",
+    //   "format": "png",
+    //   "umlClassDiagrammemberOrder": "abc"
+    // },
     "excludePrivate": true,
     "excludeProtected": true,
     "includes": "wiki/rendered/",

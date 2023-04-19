@@ -11,7 +11,7 @@ const { readFileSync, writeFileSync } = require("fs");
 const version = readFileSync("./contribute/VERSION", { encoding: "utf-8" });
 const package = JSON.parse(readFileSync("./package.json", { encoding: "utf-8" }));
 
-package.description = "NoPE Runtime for the Browser";
+package.description = "NoPE Runtime for the Browser. For nodejs please use nope-js-node";
 delete package.main;
 delete package.browser;
 delete package.bin;

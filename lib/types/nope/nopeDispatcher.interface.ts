@@ -70,6 +70,12 @@ export type INopeDispatcherOptions = {
    * @type {boolean}
    */
   forceUsingValidVarNames?: boolean;
+
+  /**
+   * Flag to indicate, whether methodes with the call {@link nope.exportAsNopeService} are
+   * provided by the instance or not.
+   */
+  useExportedServices?: boolean;
 } & INopeINopeConnectivityOptions;
 
 export interface IHostOverview extends IHost {

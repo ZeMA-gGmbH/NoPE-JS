@@ -14,12 +14,30 @@ import {
 } from "../types/nope/nopeDispatcher.interface";
 import { addAllBaseServices } from "./baseServices";
 import { NopeDispatcher } from "./nopeDispatcher";
+import { IexportAsNopeServiceParameters } from "../decorators/index";
+
+export type TAdditionalOptions = {
+  /**
+   * A different Constructor class.
+   */
+  dispatcherConstructorClass?: IDispatcherConstructor;
+  /**
+   * Enalbe the Dispatcher to exists as singleton in the runtime. Defaults to `true`.
+   */
+  singleton?: boolean;
+  /**
+   * Flag to enable using the Base-Services. Defaults to `true`
+   */
+  useBaseServices?: boolean;
+  /**
+   * Flag to load services exported with `exportAsNopeService`. Defaults to `true`
+   */
+  useLinkedServices?: boolean;
+};
 
 /**
+ * Helper to get a Dispatcher.
  *
- * @param {INopeDispatcherOptions} dispatcherOptions The options, that will be used for the dispathcer.
- * @param options Additional Options. You can provide a different Dispatcher-Class; Controll the scope (Singleton or not.) and define wehter the Base-Services should be added.
- * @returns {INopeDispatcher} The dispatcher.
  *
  * ```typescript
  * // Create a communication layer:
@@ -27,14 +45,15 @@ import { NopeDispatcher } from "./nopeDispatcher";
  * // Now create the Dispatcher.
  * const dispatcher = getDispatcher({communicator});
  * ```
+ *
+ * @export
+ * @param {INopeDispatcherOptions} dispatcherOptions The options, that will be used for the dispatcher.
+ * @param {TAdditionalOptions} [options={}]  Options. You can provide a different Dispatcher-Class; Controll the scope (Singleton or not.) and define wehter the Base-Services should be added etc. see {@link TAdditionalOptions}
+ * @returns {INopeDispatcher} The dispatcher.
  */
 export function getDispatcher(
   dispatcherOptions: INopeDispatcherOptions,
-  options: {
-    dispatcherConstructorClass?: IDispatcherConstructor;
-    singleton?: boolean;
-    useBaseServices?: boolean;
-  } = {}
+  options: TAdditionalOptions = {}
 ): INopeDispatcher {
   if (
     options.dispatcherConstructorClass === null ||
@@ -48,6 +67,7 @@ export function getDispatcher(
       constructorClass: null,
       singleton: true,
       useBaseServices: true,
+      useLinkedServices: true,
     },
     options
   );
@@ -79,6 +99,35 @@ export function getDispatcher(
       // Store the services
       addAllBaseServices(dispatcher).then((services) => {
         dispatcher["services"] = services;
+      });
+    }
+
+    if (options.useLinkedServices) {
+      // Define a Container, which contains all functions.
+      const container = getSingleton("nopeBackendDispatcher.container", () => {
+        return new Map<
+          string,
+          {
+            uri: string;
+            callback: (...args) => Promise<any>;
+            options: IexportAsNopeServiceParameters;
+          }
+        >();
+      });
+
+      // If the Dispatcher has been connected, register all functions.
+      dispatcher.ready.waitFor().then(() => {
+        if (dispatcher.ready.getContent()) {
+          // Iterate over the Functions
+          for (const [uri, settings] of container.instance.entries()) {
+            dispatcher.rpcManager.registerService(settings.callback, {
+              ...settings.options,
+              id: uri,
+            });
+          }
+        } else {
+          // Failed to Setup the Container.
+        }
       });
     }
 

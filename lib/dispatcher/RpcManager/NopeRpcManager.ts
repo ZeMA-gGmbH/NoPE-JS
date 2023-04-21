@@ -15,7 +15,7 @@ import { SPLITCHAR } from "../../helpers/objectMethods";
 import { varifyPath } from "../../helpers/path";
 import { registerGarbageCallback } from "../../helpers/gc";
 import { defineNopeLogger } from "../../logger/getLogger";
-import { DEBUG } from "../../logger/index.browser";
+import { DEBUG, ERROR } from "../../logger/index.browser";
 import { NopePromise } from "../../promise/nopePromise";
 import {
   IAvailableServicesMsg,
@@ -186,19 +186,12 @@ export class NopeRpcManager<T extends IServiceOptions = IServiceOptions>
   public readonly ready: INopeObservable<boolean>;
 
   /**
-   * Creates an instance of nopeDispatcher.
-   * @param {nopeRpcDispatcherOptions} options The Options, used by the Dispatcher.
-   * @param {() => INopeObservable<IExternalEventMsg>} _generateObservable A Helper, to generate Observables.
-   * @memberof nopeDispatcher
-   */
-  /**
    * Creates an instance of NopeRpcManager.
    * @param {INopeDispatcherOptions} options The Options, used by the rpc-manager.
    * @param {<T>() => INopeObservable<T>} _generateObservable helper to generate an nope observable. might be used to replace the default observable.
    * @param {ValidSelectorFunction} _defaultSelector Default selector see {@link INopeRpcManager.performCall}
    * @param {string} [_id=null] A Provided a for the rpc-manager
    * @param {INopeConnectivityManager} [_connectivityManager=null] A {@link INopeConnectivityManager} used to listen for new and dead dispatchers
-   * @memberof performCall
    */
   constructor(
     public options: INopeDispatcherOptions,
@@ -535,12 +528,40 @@ export class NopeRpcManager<T extends IServiceOptions = IServiceOptions>
       }
     });
 
+    await this._communicator.on("bonjour", (msg) => {
+      if (msg.dispatcherId !== _this._id) {
+        // If there are dispatchers online,
+        // We will emit our available services.
+        _this
+          ._sendAvailableServices()
+          .then((_) => {})
+          .catch((e) => {
+            if (_this._logger?.enabledFor(ERROR)) {
+              // If there is a Logger:
+              _this._logger.error(
+                `Dispatcher "${_this._id}" failed to emit available services`
+              );
+            }
+          });
+      }
+    });
+
     // We will use our connecitity-manager to listen to changes.
     this._connectivityManager.dispatchers.onChange.subscribe((changes) => {
       if (changes.added.length) {
         // If there are dispatchers online,
         // We will emit our available services.
-        _this._sendAvailableServices();
+        _this
+          ._sendAvailableServices()
+          .then((_) => {})
+          .catch((e) => {
+            if (_this._logger?.enabledFor(ERROR)) {
+              // If there is a Logger:
+              _this._logger.error(
+                `Dispatcher "${_this._id}" failed to emit available services`
+              );
+            }
+          });
       }
       if (changes.removed.length) {
         // Remove the dispatchers.
@@ -797,13 +818,13 @@ export class NopeRpcManager<T extends IServiceOptions = IServiceOptions>
    * @return {(...args) => Promise<any>} The registered Function
    * @memberof nopeDispatcher
    */
-  public registerService(
+  public async registerService(
     func: (...args) => Promise<any>,
     options: {
       // We dont want to add a prefix
       addNopeServiceIdPrefix?: boolean;
     } & T
-  ): (...args) => Promise<any> {
+  ): Promise<(...args) => Promise<any>> {
     const _this = this;
     // Define / Use the ID of the Function.
     let _id = options.id || generateId();
@@ -825,7 +846,7 @@ export class NopeRpcManager<T extends IServiceOptions = IServiceOptions>
 
     let _func = func;
 
-    if (!this.__warned && !isAsyncFunction(func)) {
+    if (!this.__warned && !isAsyncFunction(func) && this._logger) {
       this._logger.warn(
         "!!! You have provided synchronous functions. They may break NoPE. Use them with care !!!"
       );
@@ -848,7 +869,7 @@ export class NopeRpcManager<T extends IServiceOptions = IServiceOptions>
     });
 
     // Publish the Available Services.
-    this._sendAvailableServices();
+    await this._sendAvailableServices();
 
     if (this._logger?.enabledFor(DEBUG)) {
       // If there is a Logger:
@@ -965,7 +986,8 @@ export class NopeRpcManager<T extends IServiceOptions = IServiceOptions>
           _this.options.forceUsingSelectors ||
           this.services.amountOf.get(serviceName) > 1
         ) {
-          if (typeof options.target !== "string") {
+          // Fixing the Selection
+          if (typeof options.target === "string") {
             taskRequest.target = options.target;
           } else if (typeof options?.selector === "function") {
             const dispatcherToUse = await options.selector({
@@ -1009,13 +1031,17 @@ export class NopeRpcManager<T extends IServiceOptions = IServiceOptions>
         // If there is a timeout =>
         if (options.timeout > 0) {
           taskRequest.timeout = setTimeout(() => {
-            _this.cancelTask(
-              _taskId,
-              new Error(
-                `TIMEOUT. The Service allowed execution time of ${options.timeout.toString()}[ms] has been excided`
-              ),
-              false
-            );
+            _this
+              .cancelTask(
+                _taskId,
+                new Error(
+                  `TIMEOUT. The Service allowed execution time of ${options.timeout.toString()}[ms] has been excided`
+                ),
+                false
+              )
+              .catch((e) => {
+                _this._logger.error(`Failed to cancel the task ${_taskId}.`);
+              });
           }, options.timeout);
         }
       } catch (e) {

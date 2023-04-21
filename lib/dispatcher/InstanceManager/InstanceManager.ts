@@ -11,7 +11,7 @@ import { generateHash } from "../../helpers/hash";
 import { SPLITCHAR } from "../../helpers/objectMethods";
 import { varifyPath } from "../../helpers/path";
 import { defineNopeLogger } from "../../logger/getLogger";
-import { DEBUG } from "../../logger/index.browser";
+import { DEBUG, ERROR } from "../../logger/index.browser";
 import { NopeGenericWrapper } from "../../module/index";
 import { NopeObservable } from "../../observables";
 import {
@@ -292,10 +292,10 @@ export class NopeInstanceManager implements INopeInstanceManager {
    * @protected
    * @memberof NopeInstanceManager
    */
-  protected _sendAvailableInstances(): void {
+  protected async _sendAvailableInstances(): Promise<void> {
     const _this = this;
     // Update the Instances provided by this module.
-    this._communicator.emit("instancesChanged", {
+    await this._communicator.emit("instancesChanged", {
       dispatcher: this._id,
       // We will send the descriptions.
       instances: Array.from(this._internalInstances).map((identifier) => {
@@ -338,12 +338,35 @@ export class NopeInstanceManager implements INopeInstanceManager {
       }
     );
 
+    await this._communicator.on("bonjour", (msg) => {
+      if (msg.dispatcherId !== _this._id) {
+        // If there are dispatchers online,
+        // We will emit our available services.
+        _this
+          ._sendAvailableInstances()
+          .then((_) => {})
+          .catch((e) => {
+            if (_this._logger?.enabledFor(ERROR)) {
+              // If there is a Logger:
+              _this._logger.error(
+                `Dispatcher "${_this._id}" failed to emit available instances`
+              );
+            }
+          });
+      }
+    });
+
     // We will use our status-manager to listen to changes.
     this._connectivityManager.dispatchers.onChange.subscribe((changes) => {
       if (changes.added.length) {
         // If there are dispatchers online,
         // We will emit our available services.
-        _this._sendAvailableInstances();
+        _this._sendAvailableInstances().catch((e) => {
+          if (_this._logger) {
+            _this._logger.error("Failed to emit the available instance");
+            _this._logger.error(e);
+          }
+        });
       }
       if (changes.removed.length) {
         // Remove the dispatchers.
@@ -517,7 +540,7 @@ export class NopeInstanceManager implements INopeInstanceManager {
 
               // A Function is registered, taking care of removing
               // an instances, if it isnt needed any more.
-              _this._rpcManager.registerService(
+              await _this._rpcManager.registerService(
                 async (_data: IDisposeInstanceMsg) => {
                   if (_this._instances.get(data.identifier)?.usedBy) {
                     // Get the Index of the dispatcher, which is using
@@ -550,7 +573,7 @@ export class NopeInstanceManager implements INopeInstanceManager {
                       );
 
                       // Emit the instances again
-                      _this._sendAvailableInstances();
+                      await _this._sendAvailableInstances();
                     }
                   }
                 },
@@ -572,7 +595,7 @@ export class NopeInstanceManager implements INopeInstanceManager {
               _this._internalInstances.add(data.identifier);
 
               // Update the available instances:
-              _this._sendAvailableInstances();
+              await _this._sendAvailableInstances();
 
               // Make shure, we remove this instance.hash
               _this._initializingInstance.delete(data.identifier);
@@ -688,23 +711,20 @@ export class NopeInstanceManager implements INopeInstanceManager {
 
   // See interface description
   public instanceExists(identifier: string, externalOnly = true): boolean {
-    if (externalOnly) {
-      return this._externalInstances.has(identifier);
-    } else {
-      return (
-        this._externalInstances.has(identifier) ||
-        this._instances.has(identifier)
-      );
+    if (!this.instances.simplified.has(identifier)) {
+      return false;
     }
+
+    if (externalOnly) {
+      const manager = this.getManagerOfInstance(identifier);
+      return manager.id !== this._id;
+    }
+
+    return true;
   }
 
   // See interface description
   public getManagerOfInstance(identifier: string): INopeStatusInfo | undefined {
-    // Check if the instance exists in general
-    if (!this.instanceExists(identifier, false)) {
-      return undefined;
-    }
-
     // First we will check if the instance is available internally.
     if (this._internalInstances.has(identifier)) {
       return this._connectivityManager.info;
@@ -749,6 +769,126 @@ export class NopeInstanceManager implements INopeInstanceManager {
   // See interface description
   public constructorExists(typeIdentifier: string): boolean {
     return this.constructors.data.getContent().includes(typeIdentifier);
+  }
+
+  public async generateWrapper<I = IGenericNopeModule>(
+    description: Partial<IInstanceCreationMsg>
+  ): Promise<I & IGenericNopeModule> {
+    // Define the Default Description
+    // which will lead to an error.
+    const _defDescription: IInstanceCreationMsg = {
+      dispatcherId: this._id,
+      identifier: "error",
+      params: [],
+      type: "unkown",
+    };
+
+    // Assign the provided Description
+    const _description = Object.assign(_defDescription, description, {
+      dispatcherId: this._id,
+    }) as IInstanceCreationMsg;
+
+    // Check if the description is complete
+    if (
+      _defDescription.type === "unkown" ||
+      _description.identifier === "error"
+    ) {
+      throw Error(
+        'Please Provide at least a "type" and "identifier" in the paremeters'
+      );
+    }
+
+    // Use the varified Name (removes the invalid chars.)
+    _defDescription.identifier = this.options.forceUsingValidVarNames
+      ? varifyPath(_defDescription.identifier)
+      : _defDescription.identifier;
+
+    if (this._logger?.enabledFor(DEBUG)) {
+      this._logger.debug(
+        'Requesting an wrapper of type: "' +
+          _defDescription.type +
+          '" with the identifier: "' +
+          _defDescription.identifier +
+          '"'
+      );
+    }
+
+    try {
+      let _type = _description.type;
+
+      if (!this._internalWrapperGenerators.has(_type)) {
+        // No default type is present for a remote
+        // => assing the default type which is "*""
+        _type = "*";
+      }
+
+      if (this._internalWrapperGenerators.has(_type)) {
+        if (this._logger?.enabledFor(DEBUG)) {
+          this._logger.debug(
+            'No instance with the identifiert: "' +
+              _defDescription.identifier +
+              '" found, but an internal generator is available. Using the internal one for creating the instance and requesting the "real" instance externally'
+          );
+        }
+
+        // Now test if there is allready an instance with this name and type.
+        // If so, we check if we have the correct type etc. Additionally we
+        // try to extract its dispatcher-id and will use that as selector
+        // to allow the function be called.
+        const _instanceDetails = this._getInstanceInfo(_description.identifier);
+        if (
+          _instanceDetails !== undefined &&
+          _instanceDetails?.description.type !== _description.type
+        ) {
+          throw Error(
+            "There exists an Instance named: '" +
+              _description.identifier +
+              "' but it uses a different type. Requested type: '" +
+              _description.type +
+              "', given type: '" +
+              _instanceDetails?.description.type +
+              "'"
+          );
+        } else if (_instanceDetails === undefined) {
+          throw Error(
+            `No instance known with the idenfitier '${_description.identifier}'`
+          );
+        }
+
+        const definedInstance = _instanceDetails.description;
+
+        // Create the Wrapper for our instance.
+        const wrapper = (await this._internalWrapperGenerators.get(_type)(
+          this._core,
+          definedInstance,
+          {
+            linkEvents: true,
+            linkProperties: true,
+          }
+        )) as IGenericNopeModule;
+
+        if (this._logger?.enabledFor(DEBUG)) {
+          this._logger.debug(
+            `Created a Wrapper for the instance "${definedInstance.identifier}"`
+          );
+        }
+
+        // Make shure, that the wrapper is handled correctly.
+        registerGarbageCallback(wrapper, wrapper.dispose.bind(wrapper));
+
+        return wrapper as I & IGenericNopeModule;
+      }
+
+      throw Error("No internal generator Available!");
+    } catch (e) {
+      if (this._logger) {
+        this._logger.error(
+          "During creating an Instance, the following error Occurd"
+        );
+        this._logger.error(e);
+      }
+      throw e;
+    }
   }
 
   // See interface description
@@ -942,6 +1082,10 @@ export class NopeInstanceManager implements INopeInstanceManager {
       manual: true,
     });
 
+    this._internalInstances.add(instance.identifier);
+
+    await this._sendAvailableInstances();
+
     return instance;
   }
 
@@ -1006,7 +1150,7 @@ export class NopeInstanceManager implements INopeInstanceManager {
         // Check if an update should be emitted or not.
         if (!preventSendingUpdate) {
           // Update the Instances provided by this module.
-          this._sendAvailableInstances();
+          await this._sendAvailableInstances();
         }
 
         if (callInstanceDispose) {
@@ -1089,8 +1233,15 @@ export class NopeInstanceManager implements INopeInstanceManager {
     this.internalInstances.setContent([]);
 
     if (this._communicator.connected.getContent()) {
+      const _this = this;
+
       // Update the Instances
-      this._sendAvailableInstances();
+      this._sendAvailableInstances().catch((e) => {
+        if (_this._logger) {
+          _this._logger.error("Failed to emit the available instance");
+          _this._logger.error(e);
+        }
+      });
     }
   }
 

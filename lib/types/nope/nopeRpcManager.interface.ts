@@ -257,7 +257,7 @@ export interface INopeRpcManager<T extends IServiceOptions = IServiceOptions> {
     options: {
       addNopeServiceIdPrefix?: boolean;
     } & IServiceOptions
-  ): (...args) => Promise<T>;
+  ): Promise<(...args) => Promise<T>>;
 
   /**
    * Helper to unregister an callback.

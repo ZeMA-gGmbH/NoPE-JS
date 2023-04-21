@@ -333,6 +333,16 @@ export interface INopeInstanceManager {
   ): Promise<I & IGenericNopeModule>;
 
   /**
+   * Manual function, used to generate a Wrapper. This should only be called, when instances are
+   * registerd with {@link NopeInstanceManager.registerInstance} is used and you are shure, that
+   * the instance is created manually. Please allways prefer to use {@link NopeInstanceManager.createInstance}
+   * @param description
+   */
+  generateWrapper<I = IGenericNopeModule>(
+    description: Partial<IInstanceCreationMsg>
+  ): Promise<I & IGenericNopeModule>;
+
+  /**
    * Creates Wrappers for the Type of the given element.
    * @param type
    */

@@ -355,7 +355,7 @@ Der `EventDistributor` stellt im Wesentlichen ein `PubSubSystem` dar. Es verteil
 Das `PubSubSystem` führt dabei ein sog. Root-Objekt (im Wesentlichen ein beliebiges Daten Objekt). Dabei können Daten mittels sog. Topics `subscribed` bzw. `published` werden. Die Topics folgenden dabei den `mqtt`-Patterns. Während MQTT jedoch nur eine Subscription mit sog. **single-level wildcards** und **multi-level wildcards** erlaubt, kann das `PubSubSystem` auch diese verwenden um Daten / Änderungen zu veröffentlichen (zu *publishen*).
 
 #### Topics im `PubSubSystem`
-Im Beispiel wird das foglende JSON-Objekt auf ` ` (einem leeren Topic) gepublished: 
+Im Beispiel wird das folgende JSON-Objekt auf ` ` (einem leeren Topic) gepublished: 
 ```json
 {
     "foo1": ["bar1", "baz2"],

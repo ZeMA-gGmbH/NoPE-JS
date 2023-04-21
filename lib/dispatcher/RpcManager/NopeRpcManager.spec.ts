@@ -154,13 +154,13 @@ describe("NopeRpcManager", function () {
     it("multi-call", async () => {
       await manager.ready.waitFor();
 
-      manager.registerService(helloworld, {
+      await manager.registerService(helloworld, {
         id: "helloworld_00",
         schema: {
           description: "Hello World Service",
         },
       });
-      manager.registerService(helloworld, {
+      await manager.registerService(helloworld, {
         id: "helloworld_01",
         schema: {
           description: "Hello World Service",

@@ -248,8 +248,7 @@ export class PubSubSystemBase<
       });
 
       // Update the Matching Rules.
-      // this.updateMatchting();
-      this._updatePartialMatching("add", emitter, pubTopic, subTopic);
+      this.updateMatching();
 
       if (callback) {
         // If necessary. Add the Callback.
@@ -309,13 +308,6 @@ export class PubSubSystemBase<
 
       const data = this._emitters.get(emitter as unknown as O);
 
-      this._updatePartialMatching(
-        "remove",
-        emitter,
-        data.pubTopic,
-        data.subTopic
-      );
-
       data.options = options;
       data.subTopic = subTopic;
       data.pubTopic = pubTopic;
@@ -323,7 +315,7 @@ export class PubSubSystemBase<
       this._emitters.set(emitter as unknown as O, data);
 
       // Update the Matching Rules.
-      this._updatePartialMatching("add", emitter, pubTopic, subTopic);
+      this.updateMatching();
     } else {
       throw Error("Already registered Emitter!");
     }
@@ -339,7 +331,7 @@ export class PubSubSystemBase<
       this._emitters.delete(emitter as unknown as O);
 
       // Update the Matching Rules.
-      this._updatePartialMatching("remove", emitter, pubTopic, subTopic);
+      this.updateMatching();
 
       return true;
     }
@@ -410,36 +402,32 @@ export class PubSubSystemBase<
     // Clears all defined Matches
     this._matched.clear();
     // Iterate through all Publishers and
-    for (const [emitter, item] of this._emitters.entries()) {
-      const { pubTopic, subTopic } = item;
-
+    for (const { pubTopic } of this._emitters.values()) {
       // Now, lets Update the Matching for the specific Topics.
-      if (pubTopic) this._updateMatchingForTopic(pubTopic);
-      if (subTopic)
-        this.__addMatchingEntryIfRequired(subTopic, subTopic, emitter);
+      if (pubTopic !== false) this._updateMatchingForTopic(pubTopic);
     }
 
     this.publishers.update();
     this.subscriptions.update();
   }
 
-  private __deleteMatchingEntry(
-    _pubTopic: string,
-    _subTopic: string,
-    _emitter: I
-  ) {
-    if (this._matched.has(_pubTopic)) {
-      const data = this._matched.get(_pubTopic);
+  // private __deleteMatchingEntry(
+  //   _pubTopic: string,
+  //   _subTopic: string,
+  //   _emitter: I
+  // ) {
+  //   if (this._matched.has(_pubTopic)) {
+  //     const data = this._matched.get(_pubTopic);
 
-      if (data.dataPull.has(_subTopic)) {
-        data.dataPull.get(_subTopic).delete(_emitter);
-      }
+  //     if (data.dataPull.has(_subTopic)) {
+  //       data.dataPull.get(_subTopic).delete(_emitter);
+  //     }
 
-      if (data.dataQuery.has(_subTopic)) {
-        data.dataQuery.get(_subTopic).delete(_emitter);
-      }
-    }
-  }
+  //     if (data.dataQuery.has(_subTopic)) {
+  //       data.dataQuery.get(_subTopic).delete(_emitter);
+  //     }
+  //   }
+  // }
 
   private __addMatchingEntryIfRequired(pubTopic, subTopic, emitter) {
     // Now lets determine the Path
@@ -472,7 +460,7 @@ export class PubSubSystemBase<
               result.patternToExtractData,
               emitter
             );
-          } else if (result.pathToExtractData) {
+          } else if (typeof result.pathToExtractData === "string") {
             this.__addToMatchingStructure(
               "dataPull",
               pubTopic,
@@ -500,7 +488,7 @@ export class PubSubSystemBase<
           return;
         }
 
-        if (result.pathToExtractData) {
+        if (typeof result.pathToExtractData === "string") {
           this.__addToMatchingStructure(
             "dataPull",
             pubTopic,
@@ -523,41 +511,77 @@ export class PubSubSystemBase<
    * @param _pubTopic
    * @param _subTopic
    */
-  protected _updatePartialMatching(
-    mode: "add" | "remove",
-    _emitter: I,
-    _pubTopic: string | false,
-    _subTopic: string | false
-  ): void {
-    // Iterate through all Publishers and
-    for (const item of this._emitters.values()) {
-      // Extract the Pub-Topic
-      const pubTopic = item.pubTopic;
+  // protected _updatePartialMatching(
+  //   mode: "add" | "remove",
+  //   _emitter: I,
+  //   _pubTopic: string | false,
+  //   _subTopic: string | false
+  // ): void {
+  //   const consideredPublishedTopics = new Set<string>();
 
-      // Now, lets Update the Matching for the specific Topics.
-      if (mode === "remove" && pubTopic && _subTopic) {
-        this.__deleteMatchingEntry(pubTopic, _subTopic, _emitter);
-      } else if (mode === "add" && pubTopic && _subTopic) {
-        this.__addMatchingEntryIfRequired(pubTopic, _subTopic, _emitter);
-      }
-    }
+  //   if (_subTopic !== false) {
+  //     // Iterate through all Publishers and
+  //     for (const item of this._emitters.values()) {
+  //       // Extract the Pub-Topic
+  //       const pubTopicOfOtherEmitter = item.pubTopic;
 
-    if (mode === "add") {
-      if (_pubTopic) {
-        this._updateMatchingForTopic(_pubTopic);
-      }
-      if (_subTopic && !containsWildcards(_subTopic)) {
-        this.__addMatchingEntryIfRequired(_subTopic, _subTopic, _emitter);
-      }
-    } else if (mode === "remove") {
-      if (_subTopic) {
-        this.__deleteMatchingEntry(_subTopic, _subTopic, _emitter);
-      }
-    }
+  //       if (
+  //         pubTopicOfOtherEmitter !== false &&
+  //         !consideredPublishedTopics.has(pubTopicOfOtherEmitter)
+  //       ) {
+  //         // Now, lets Update the Matching for the specific Topics.
+  //         if (mode === "remove") {
+  //           this.__deleteMatchingEntry(
+  //             pubTopicOfOtherEmitter,
+  //             _subTopic,
+  //             _emitter
+  //           );
+  //         } else if (mode === "add") {
+  //           this.__addMatchingEntryIfRequired(
+  //             pubTopicOfOtherEmitter,
+  //             _subTopic,
+  //             _emitter
+  //           );
+  //         }
+  //         // Add this topic to the topics,
+  //         // that have already been checked.
+  //         consideredPublishedTopics.add(pubTopicOfOtherEmitter);
+  //       }
+  //     }
 
-    this.publishers.update();
-    this.subscriptions.update();
-  }
+  //     // Additionally, we test for the allready published events:
+  //     for (const topic of this._matched.keys()) {
+  //       // we only test already published topics:
+  //       if (
+  //         !consideredPublishedTopics.has(topic) &&
+  //         !containsWildcards(topic)
+  //       ) {
+  //         if (mode === "remove") {
+  //           this.__deleteMatchingEntry(topic, _subTopic, _emitter);
+  //         } else if (mode === "add") {
+  //           this.__addMatchingEntryIfRequired(topic, _subTopic, _emitter);
+  //         }
+  //         consideredPublishedTopics.add(topic);
+  //       }
+  //     }
+  //   }
+
+  //   if (mode === "add") {
+  //     if (_pubTopic !== false) {
+  //       this._updateMatchingForTopic(_pubTopic);
+  //     }
+  //     if (_subTopic !== false && !containsWildcards(_subTopic)) {
+  //       this.__addMatchingEntryIfRequired(_subTopic, _subTopic, _emitter);
+  //     }
+  //   } else if (mode === "remove") {
+  //     if (_subTopic !== false) {
+  //       this.__deleteMatchingEntry(_subTopic, _subTopic, _emitter);
+  //     }
+  //   }
+
+  //   this.publishers.update();
+  //   this.subscriptions.update();
+  // }
 
   public emit(eventName: string, data: any, options?: AD) {
     return this._pushData(eventName, eventName, data, options);
@@ -617,7 +641,7 @@ export class PubSubSystemBase<
 
     // Find all Matches
     for (const [emitter, item] of this._emitters.entries()) {
-      if (item.subTopic) {
+      if (typeof item.subTopic == "string") {
         // Now lets determine the Path
         this.__addMatchingEntryIfRequired(
           topicOfChange,
@@ -683,22 +707,29 @@ export class PubSubSystemBase<
 
     // Performe the direct Matches
     for (const [_pattern, _emitters] of referenceToMatch.dataQuery.entries()) {
-      for (const _emitter of _emitters) {
-        // Get a new copy for every element.
-        const data = this._pullData(_pattern, null);
+      // Fix: Speeding things up.
+      // Get a new copy for every element.
+      const data = this._patternbasedPullData(_pattern, null).filter((item) => {
+        return this._comparePatternAndPath(topicOfChange, item.path).affected;
+      });
 
-        if (_emitter !== null && _emitter !== _emitter) {
-          continue;
+      if (data.length > 0) {
+        for (const _emitter of _emitters) {
+          // prevent this case!
+          if (_emitter !== null && _emitter !== _emitter) {
+            continue;
+          }
+
+          // Iterate through all Subscribers
+          _emitter.emit(data, {
+            ...options,
+            mode: "direct",
+            topicOfChange: topicOfChange,
+            topicOfContent: topicOfContent,
+            topicOfSubscription: this._emitters.get(_emitter as unknown as O)
+              .subTopic as string,
+          });
         }
-        // Iterate through all Subscribers
-        _emitter.emit(data, {
-          ...options,
-          mode: "direct",
-          topicOfChange: topicOfChange,
-          topicOfContent: topicOfContent,
-          topicOfSubscription: this._emitters.get(_emitter as unknown as O)
-            .subTopic as string,
-        });
       }
     }
   }

@@ -18,6 +18,7 @@ import {
   IexportAsNopeServiceParameters,
   getCentralDecoratedContainer,
 } from "../decorators/index";
+import { getNopeLogger } from "../logger/index.browser";
 
 export type TAdditionalOptions = {
   /**
@@ -37,6 +38,8 @@ export type TAdditionalOptions = {
    */
   useLinkedServices?: boolean;
 };
+
+const LOGGER = getNopeLogger("getDispatcher");
 
 /**
  * Helper to get a Dispatcher.
@@ -114,10 +117,15 @@ export function getDispatcher(
         if (dispatcher.ready.getContent()) {
           // Iterate over the Functions
           for (const [uri, settings] of container.services.entries()) {
-            dispatcher.rpcManager.registerService(settings.callback, {
-              ...settings.options,
-              id: uri,
-            });
+            dispatcher.rpcManager
+              .registerService(settings.callback, {
+                ...settings.options,
+                id: uri,
+              })
+              .catch((e) => {
+                LOGGER.error(`Failed to add service ${uri}.`);
+                LOGGER.error(e);
+              });
           }
         } else {
           // Failed to Setup the Container.

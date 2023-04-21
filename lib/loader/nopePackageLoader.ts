@@ -778,16 +778,25 @@ export class NopePackageLoader implements INopePackageLoader {
             .addServiceCallback(serviceDefintion.options)
             .then((decision) => {
               if (decision) {
-                this.dispatcher.rpcManager.registerService(
-                  serviceDefintion.callback,
-                  serviceDefintion.options
-                );
+                _this.dispatcher.rpcManager
+                  .registerService(
+                    serviceDefintion.callback,
+                    serviceDefintion.options
+                  )
+                  .catch((e) => {
+                    if (_this._logger) {
+                      _this._logger.error(
+                        `Failed to register service '${serviceDefintion.uri}'`
+                      );
+                      _this._logger.error(e);
+                    }
+                  });
               }
               resolve(null);
             });
         } else {
           // Just add the Service.
-          this.dispatcher.rpcManager.registerService(
+          await this.dispatcher.rpcManager.registerService(
             serviceDefintion.callback,
             serviceDefintion.options
           );
@@ -796,7 +805,7 @@ export class NopePackageLoader implements INopePackageLoader {
     }
 
     // for (const classDefinition of CONTAINER.classes.values()){
-    //   this.dispatcher.rpcManager.registerService(classDefinition.,classDefinition.options)
+    //   await this.dispatcher.rpcManager.registerService(classDefinition.,classDefinition.options)
     // }
 
     // Wait for all Promises to be added.

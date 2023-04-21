@@ -369,19 +369,11 @@ describe("PubSubSystemBase", function () {
       });
 
       subscriber.subscribe((data) => {
-        try {
-          assert.deepEqual(
-            data,
-            { a: { test: "Hello World!" } },
-            "Message should be equal"
-          );
-          done();
-        } catch (e) {
-          done(e);
-        }
+        done(new Error("should not be called!"));
       });
 
       publisher.emit("Hello World!");
+      done();
     });
 
     it("Forwading data for subscription with same pattern length", (done) => {
@@ -460,42 +452,15 @@ describe("PubSubSystemBase", function () {
       const items = [];
 
       subscriber.subscribe((data) => {
-        try {
-          assert.deepEqual(
-            data,
-            { a: { test: "Hello World!" } },
-            "Message of Subscriber should be equal"
-          );
-          items.push("subscriber");
-          if (items.length == 2) {
-            assert.include(items, "subscriber02", "Should have subscriber");
-            assert.include(items, "subscriber", "Should have subscriber");
-            done();
-          }
-        } catch (e) {
-          done(e);
-        }
+        done(new Error("should not be called!"));
       });
 
       subscriber02.subscribe((data) => {
-        try {
-          assert.deepEqual(
-            data,
-            { test: "Hello World!" },
-            "Message of Subscriber02 should be equal"
-          );
-          items.push("subscriber02");
-          if (items.length == 2) {
-            assert.include(items, "subscriber02", "Should have subscriber");
-            assert.include(items, "subscriber", "Should have subscriber");
-            done();
-          }
-        } catch (e) {
-          done(e);
-        }
+        done(new Error("should not be called!"));
       });
 
       publisher.emit("Hello World!");
+      done();
     });
 
     it("Testing Emitters", (done) => {
@@ -893,6 +858,7 @@ describe("DataPubSubSystemBase", function () {
       });
 
       publisher.emit("Hello World!");
+
       done();
     });
 
@@ -972,42 +938,16 @@ describe("DataPubSubSystemBase", function () {
       const items = [];
 
       subscriber.subscribe((data) => {
-        try {
-          assert.deepEqual(
-            data,
-            { a: { test: "Hello World!" } },
-            "Message of Subscriber should be equal"
-          );
-          items.push("subscriber");
-          if (items.length == 2) {
-            assert.include(items, "subscriber02", "Should have subscriber");
-            assert.include(items, "subscriber", "Should have subscriber");
-            done();
-          }
-        } catch (e) {
-          done(e);
-        }
+        done(new Error("Should not be called!"));
       });
 
       subscriber02.subscribe((data) => {
-        try {
-          assert.deepEqual(
-            data,
-            { test: "Hello World!" },
-            "Message of Subscriber02 should be equal"
-          );
-          items.push("subscriber02");
-          if (items.length == 2) {
-            assert.include(items, "subscriber02", "Should have subscriber");
-            assert.include(items, "subscriber", "Should have subscriber");
-            done();
-          }
-        } catch (e) {
-          done(e);
-        }
+        done(new Error("Should not be called!"));
       });
 
       publisher.emit("Hello World!");
+
+      done();
     });
 
     it("Testing Emitters", (done) => {

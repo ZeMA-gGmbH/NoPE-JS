@@ -507,3 +507,36 @@ Inital commit, which is working with the browser
     - fixing templates of `nope-js project`
   - Adding:
     - RpcManager now has the function:  `isProviding` to test, whether a service has been provided by that RpcManager
+
+# 1.7.1
+  - Modifying:
+    - `NopeRpcManager`: 
+      - listens on `bonjour`-messages
+      - `registerService` is now async! (see `INopeInstanceManager` as well)
+    - `NopeInstanceManager`:    
+      - listens on `bonjour`-messages
+    - `getDispatcher`:
+      - The method uses a logger now. It will render the errors.
+  - Fixes:
+    - `NopeInstanceManager`:
+      - fixing `instanceExists`      
+      - `registerInstance` now emits the instances
+    - `PubSubSystemBase`:
+      - fixed the internal matching structure
+      - fixed `updateMatching`
+      - fided `_notify`: The `dataQuery` only considers the events that have been published during notification!
+    - `templates`:
+      - Fixing Typescript-Templates (still had some old 'nope' references)
+    - fixed tpyos in `00-start.md`
+  - Adding:
+    - `NopeInstanceManager` and `INopeInstanceManager`:
+      - Added method `generateWrapper`. That allows to create Wrappers for **static** added instances (via. `registerInstance`)
+    - `helpers.comparePatternAndPath`: 
+      - Fixing issues during path comparing!
+    - Tutorials for 
+      - dataDistributor
+      - rpcManager
+      - InstanceManagers
+      - Plugins
+      - eventDistributor
+    

@@ -270,9 +270,9 @@ export async function readInArgs(
 
 /**
  * Main tool to create a runtime. Returns a {@link INopePackageLoader}.
- * 
- * 
- * @async 
+ *
+ *
+ * @async
  * @param {Partial<RunArgs>} [_args={}] Arguments to configure the runtime.
  * @returns {Promise<INopePackageLoader>} The central logger.
  */

@@ -289,8 +289,16 @@ export function comparePatternAndPath(
           patternLengthComparedToPathLength: patternLengthComparedToPathLength,
           containsWildcards: _containsWildcards,
         });
+      } else if (patternLengthComparedToPathLength === ">") {
+        // Fixing: it is possible to have a longer
+        return generateResult({
+          affectedByParent: true,
+          pathToExtractData: pathPattern,
+          patternLengthComparedToPathLength: patternLengthComparedToPathLength,
+          containsWildcards: _containsWildcards,
+        });
       } else {
-        throw Error("Implementation Error! This should not happen");
+        throw Error("Implementation Error! This should not happen.");
       }
     } else if (currentPath == currentPattern) {
       // The Patterns Match
@@ -351,7 +359,7 @@ export function comparePatternAndPath(
 
   return generateResult({
     affectedOnSameLevel: diff.length == 0,
-    affectedByChild: diff.length > 1,
+    affectedByChild: diff.length >= 1,
     pathToExtractData: partialPath,
     patternLengthComparedToPathLength,
     containsWildcards: _containsWildcards,

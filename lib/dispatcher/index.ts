@@ -67,6 +67,8 @@ import * as connectivityManager from "./ConnectivityManager";
 import * as instanceManager from "./InstanceManager";
 import * as rpcManager from "./RpcManager";
 
+export { generateSelector } from "./RpcManager";
+
 export {
   exportAsNopeService,
   IexportAsNopeServiceParameters,

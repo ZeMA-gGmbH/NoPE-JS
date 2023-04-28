@@ -1,7 +1,4 @@
 "use strict";
-const fs = require("fs");
-const v8Profiler = require("v8-profiler-next");
-
 import { join } from "path";
 import { replaceAll } from "../helpers/stringMethods";
 import { getNopeLogger } from "../index.browser";
@@ -41,53 +38,65 @@ export function generateLogfilePath(name: string): string {
 export function recordCPUProfile(pathToFile = DEFAULT_FILE) {
   const title = "cpu-profile";
 
-  // set generateType 1 to generate new format for cpuprofile
-  // to be compatible with cpuprofile parsing in vscode.
-  v8Profiler.setGenerateType(1);
+  const nodeVersion = process.version.match(/^v(\d+\.\d+)/)[1];
+  const major = nodeVersion.split(".")[0];
 
-  // ex. 5 mins cpu profile
-  v8Profiler.startProfiling(title, true);
+  if (parseInt(major) >= 19) {
+    const v8Profiler = require("v8-profiler-next");
+    // set generateType 1 to generate new format for cpuprofile
+    // to be compatible with cpuprofile parsing in vscode.
+    v8Profiler.setGenerateType(1);
 
-  let stopped = false;
+    // ex. 5 mins cpu profile
+    v8Profiler.startProfiling(title, true);
 
-  const stopProfiling = async () => {
-    if (stopped) {
-      return;
-    }
+    let stopped = false;
 
-    stopped = true;
+    const stopProfiling = async () => {
+      if (stopped) {
+        return;
+      }
 
-    const profile = v8Profiler.stopProfiling(title);
+      stopped = true;
 
-    const promise = new Promise((resolve, reject) => {
-      profile.export(function (error, result) {
-        if (error) {
-          reject(error);
-        }
-        resolve(result);
+      const profile = v8Profiler.stopProfiling(title);
+
+      const promise = new Promise((resolve, reject) => {
+        profile.export(function (error, result) {
+          if (error) {
+            reject(error);
+          }
+          resolve(result);
+        });
       });
-    });
 
-    const result: any = await promise;
+      const result: any = await promise;
 
-    // if it doesn't have the extension .cpuprofile then
-    // chrome's profiler tool won't like it.
+      // if it doesn't have the extension .cpuprofile then
+      // chrome's profiler tool won't like it.
 
-    // examine the profile:
-    //   Navigate to chrome://inspect
-    //   Click Open dedicated DevTools for Node
-    //   Select the profiler tab
-    //   Load your file
-    await createFile(pathToFile, result);
+      // examine the profile:
+      //   Navigate to chrome://inspect
+      //   Click Open dedicated DevTools for Node
+      //   Select the profiler tab
+      //   Load your file
+      await createFile(pathToFile, result);
 
-    logger.info(
-      "Please open google chrome and open chrome://inspect and load the file",
-      pathToFile
-    );
+      logger.info(
+        "Please open google chrome and open chrome://inspect and load the file",
+        pathToFile
+      );
 
-    // Clear the Profile.
-    profile.delete();
+      // Clear the Profile.
+      profile.delete();
+    };
+
+    return stopProfiling;
+  }
+
+  logger.warn("Logging not enabled for the current node version. ");
+
+  return async () => {
+    // Placeholder.
   };
-
-  return stopProfiling;
 }

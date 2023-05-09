@@ -1,11 +1,10 @@
 {
-  "name": "nope-js-node",
-  "version": "1.7.4",
-  "description": "NoPE Runtime for Nodejs. For Browser-Support please use nope-browser",
+  "name": "nope-js-browser",
+  "version": "1.7.5",
+  "description": "NoPE Runtime for the Browser. For nodejs please use nope-js-node",
   "files": [
-    "dist-nodejs/**/*",
-    "lib/**/*",
-    "bin/*"
+    "build/**/*",
+    "dist-browser/**/*"
   ],
   "scripts": {
     "test": "mocha",
@@ -113,8 +112,6 @@
   "prettier": {
     "arrowParens": "always"
   },
-  "bin": {
-    "nope-js": "./bin/nope"
-  },
-  "main": "dist-nodejs/index.nodejs.js"
+  "browser": "build/nope.js",
+  "main": "build/nope.js"
 }

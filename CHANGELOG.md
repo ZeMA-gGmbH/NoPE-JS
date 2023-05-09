@@ -549,3 +549,7 @@ Inital commit, which is working with the browser
     - template engine provides the nope version based on the package.json file
   - Fixing:
     - Fixing typescript templates.
+    
+# 1.7.5:
+  - Modifying: 
+    - Enabling lazy topics matching in Pub-Sub-System again

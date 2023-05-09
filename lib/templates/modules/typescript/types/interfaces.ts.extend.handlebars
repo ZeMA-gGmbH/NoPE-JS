@@ -1,4 +1,8 @@
-export interface {{toInterface name}} {
+export interface {{toInterface name}} {    
+    {{#each events}}
+    {{this}}: INopeObservable<unknown>;
+    {{/each}}
+    
     {{#each properties}}
     {{this}}: INopeObservable<unknown>;
     {{/each}}

@@ -540,3 +540,12 @@ Inital commit, which is working with the browser
       - Plugins
       - eventDistributor
     
+# 1.7.3:
+  - Adding: 
+    - cli tool now can use ``version`` to print the version.
+# 1.7.4:
+  - Modifying: 
+    - cli tool use ``version`` based on the Package file.
+    - template engine provides the nope version based on the package.json file
+  - Fixing:
+    - Fixing typescript templates.

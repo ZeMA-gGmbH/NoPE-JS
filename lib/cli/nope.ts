@@ -4,6 +4,7 @@
  * @desc [description]
  */
 
+import { readFile } from "fs/promises";
 import {
   readInWriteUiFileArgs,
   writeUiFile,
@@ -15,6 +16,7 @@ import { interact } from "./interact";
 import { project } from "./projectHelper";
 import { repl } from "./repl";
 import { main as runMain } from "./runNopeBackend";
+import { join } from "path";
 
 /**
  * Main Function.
@@ -33,6 +35,7 @@ export async function main() {
       | "repl"
       | "scan-ui"
       | "upload-ui"
+      | "version"
       | "interact";
     params: string[];
   } = {
@@ -58,7 +61,8 @@ Please select the option you want. Therefore add one of the following options:
     \x1b[4mupload-ui\x1b[0m Uploads the determined ui-file
     \x1b[4mservice\x1b[0m   Generate Helper Files to provide windows/linux-services for your configuration. (autorun)      
     \x1b[4mrepl\x1b[0m      Opens an interactive console (REPL).   
-    \x1b[4minteract\x1b[0m  Opens an interactive tool, to inspect the current environment.      
+    \x1b[4minteract\x1b[0m  Opens an interactive tool, to inspect the current environment.
+    \x1b[4mversion\x1b[0m   Shows the current version    
 
 Have fun using NoPE :)
 
@@ -122,6 +126,14 @@ Have fun using NoPE :)
     case "interact":
       additionalArg.help = "tool for live system interaction.";
       await interact([additionalArg]);
+      break;
+    case "version":
+      const dirName = join(__dirname, "..", "..");
+      const packageJson = JSON.parse(
+        (await readFile(join(dirName, "package.json"))).toString("utf-8")
+      );
+      const version = packageJson.version;
+      console.log(version);
       break;
   }
 }

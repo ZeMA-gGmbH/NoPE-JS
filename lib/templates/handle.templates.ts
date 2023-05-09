@@ -14,6 +14,7 @@ import {
   camelize,
 } from "../helpers/index.nodejs";
 import { copyFile, readFile } from "fs/promises";
+import { readFileSync } from "fs";
 import { join, relative, resolve } from "path";
 import * as handlebars from "handlebars";
 import { existsSync } from "fs";
@@ -22,6 +23,12 @@ import { simpleGit } from "simple-git";
 
 const dirName = join(__dirname, "..", "..", "lib", "templates");
 const INSERT_MARKER = " !! Insert-Marker: Don't remove this line !!";
+
+const packageDirName = join(__dirname, "..", "..");
+const packageJson = JSON.parse(
+  readFileSync(join(packageDirName, "package.json")).toString("utf-8")
+);
+const currentNopeVersion = packageJson.version;
 
 function firstup(str: string) {
   str = camelize(str);
@@ -90,7 +97,7 @@ export interface IProjectFile {
     repo: string;
     created: boolean;
   };
-  currentNopeVersion: "1.6.8";
+  currentNopeVersion: currentNopeVersion;
 }
 
 export function generateDefaultProject(): IProjectFile {
@@ -109,7 +116,7 @@ export function generateDefaultProject(): IProjectFile {
       mail: "",
     },
     depencies: [],
-    currentNopeVersion: "1.6.8",
+    currentNopeVersion: currentNopeVersion,
   };
 }
 
@@ -372,7 +379,7 @@ if (require.main === module) {
       dirName: "test_python",
       version: "1.0",
       type: "python",
-      currentNopeVersion: "1.6.8",
+      currentNopeVersion: currentNopeVersion,
     };
 
     await createProject(settings, "../temp", logger);

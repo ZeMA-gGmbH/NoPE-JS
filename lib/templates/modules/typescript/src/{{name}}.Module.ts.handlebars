@@ -6,6 +6,20 @@ import { injectable } from "inversify";
 export class {{toModule name}} extends InjectableNopeBaseModule implements {{toInterface name}}
 {
 
+    {{#each events}}
+    /**
+     * Property '{{this}}' is used to ...
+     * TODO: Add a description here!
+     */
+    // @ts-ignore
+    @nopeProperty({
+        mode: ["publish"],
+        topic: "{{this}}",
+        schema: {},
+    })
+    public {{this}} = new NopeEventEmitter<{{toInterface ../name}}["{{this}}"]>();
+    {{/each}}
+
     {{#each properties}}
     /**
      * Property '{{this}}' is used to ...
@@ -17,7 +31,7 @@ export class {{toModule name}} extends InjectableNopeBaseModule implements {{toI
         topic: "{{this}}",
         schema: {},
     })
-    public {{this}} = new NopeObservable<{{toInterface name}}["{{this}}"]>();
+    public {{this}} = new NopeObservable<{{toInterface ../name}}["{{this}}"]>();
     {{/each}}
 
     {{#each methods}}

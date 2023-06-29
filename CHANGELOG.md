@@ -555,9 +555,11 @@ Inital commit, which is working with the browser
     - Enabling lazy topics matching in Pub-Sub-System again
 
 # 1.7.6:
+  - Adding:
+    - Adding the `IO-Host` Layer. This layer works like a `io-server` but doesnt forward the messages to the clients. This can be used to provide a specific service or module for multiple instances that should not be connected.
+    - Added the `config` and `connections` properties in the `settings.json`. This information will be used as base config during the `nope-js run` if you provide additional attirbutes (see `nope-js run -h`) this settings will be used. 
   - Modifying:
     - Implementing a Speedhack in the `RpcManager` during Perform call.
     - Adding the Feature to skip heartbeats if the system is in debugging.
-
   - Fixing:
     - Fixing interaction tool. 

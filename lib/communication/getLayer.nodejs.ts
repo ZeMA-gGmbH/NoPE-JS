@@ -8,31 +8,9 @@
 
 import { generateId } from "../helpers/idMethods";
 import { ValidLoggerDefinition } from "../logger/getLogger";
-import { LoggerLevel } from "../logger/nopeLogger";
 import { ICommunicationBridge } from "../types/nope/nopeCommunication.interface";
+import { addLayer, validLayerOrMirror } from "./addLayer.nodejs";
 import { Bridge } from "./bridge";
-import {
-  IoSocketClientLayer,
-  ioSocketServerLayer,
-  MQTTLayer,
-} from "./layers/index.nodejs";
-
-// Define the Valid Layers
-export type validLayerOrMirror = "event" | "io-server" | "io-client" | "mqtt";
-
-export const validLayers = {
-  event: Bridge,
-  "io-server": ioSocketServerLayer,
-  "io-client": IoSocketClientLayer,
-  mqtt: MQTTLayer,
-};
-
-export const layerDefaultParameters = {
-  amqp: "localhost",
-  "io-server": 7000,
-  "io-client": "http://localhost:7000",
-  mqtt: "mqtt://localhost:1883",
-};
 
 /**
  * Function, that will create a Bridge, based on the provided function.
@@ -55,34 +33,8 @@ export function getLayer(
   // Create the Bridge
   const communicationBridge = new Bridge(generateId(), logger);
 
-  // Assign the Default Setting for the Channel.
-  const params = parameter !== null ? parameter : layerDefaultParameters[layer];
-
-  switch (layer) {
-    case "event":
-      break;
-    case "io-client":
-      communicationBridge.addCommunicationLayer(
-        new IoSocketClientLayer(params, logger),
-        true
-      );
-      break;
-    case "io-server":
-      communicationBridge.addCommunicationLayer(
-        new ioSocketServerLayer(params, logger),
-        true
-      );
-      break;
-    case "mqtt":
-      communicationBridge.addCommunicationLayer(
-        new MQTTLayer(params, logger) as any
-      );
-      break;
-  }
-
-  // Now that we have added a connection, we will
-  // update the value.
-  communicationBridge.connected.forcePublish();
+  // Add the Logger.
+  addLayer(communicationBridge, layer, parameter, logger, true);
 
   // Return the Bridge
   return communicationBridge as any as ICommunicationBridge;

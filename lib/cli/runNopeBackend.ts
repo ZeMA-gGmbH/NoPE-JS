@@ -11,16 +11,22 @@ import { ArgumentParser } from "argparse";
 import { readFile } from "fs/promises";
 import "reflect-metadata";
 import {
+  addLayer,
   getLayer,
   layerDefaultParameters,
   validLayerOrMirror,
   validLayers,
-} from "../communication/getLayer.nodejs";
+} from "../communication/index.nodejs";
+
 import { sleep } from "../helpers/async";
 import { generateId } from "../helpers/idMethods";
 import { deepClone } from "../helpers/objectMethods";
 import { getPackageLoader } from "../loader/getPackageLoader.browser";
-import { loadFunctions, loadPackages } from "../loader/loadPackages";
+import {
+  IConfigFile,
+  loadFunctions,
+  loadPackages,
+} from "../loader/loadPackages";
 import { generateLogfilePath, useLogFile } from "../logger/fileLogging";
 import { getNopeLogger } from "../logger/getLogger";
 import { LoggerLevel, LoggerLevels } from "../logger/nopeLogger";
@@ -106,6 +112,7 @@ export async function readInArgs(
     defaultValue?: any;
   }[] = [],
   forcedArgs: Partial<RunArgs> = {},
+  defaultArgs: Partial<RunArgs> = {},
   parser: ArgumentParser = null
 ): Promise<RunArgs> {
   if (parser === null) {
@@ -126,7 +133,7 @@ export async function readInArgs(
 
   parser.add_argument("-f", "--file", {
     help: "File containing containing the package definitions.",
-    default: "./config/settings.json",
+    default: defaultArgs.file || "./config/settings.json",
     type: "str",
     dest: "file",
   });
@@ -140,7 +147,7 @@ export async function readInArgs(
           return '"' + item + '"';
         })
         .join(", "),
-    default: "event",
+    default: defaultArgs.channel || "event",
     type: "str",
     dest: "channel",
   });
@@ -149,7 +156,7 @@ export async function readInArgs(
     help:
       "Paramas for the Channel, to connect to. The Following Defaults are used: \n" +
       JSON.stringify(layerDefaultParameters, undefined, 4),
-    default: "not-provided",
+    default: defaultArgs.channelParams || "not-provided",
     type: "str",
     dest: "channelParams",
   });
@@ -168,7 +175,7 @@ export async function readInArgs(
       ValidDefaultSelectors.map((item) => {
         return '"' + item + '"';
       }).join(", "),
-    default: "first",
+    default: defaultArgs.defaultSelector || "first",
     type: "str",
     dest: "defaultSelector",
   });
@@ -184,17 +191,19 @@ export async function readInArgs(
     help:
       'Specify the Logger Level. Defaults to "info". Valid values are: ' +
       LoggerLevels.join(", "),
-    default: "info",
+    default: defaultArgs.log || "info",
     type: "str",
     dest: "log",
   });
 
   parser.add_argument("--id", {
     help: "Define a custom id to the Dispatcher",
-    default: generateId({
-      prestring: "_dispatcher",
-      useAsVar: true,
-    }),
+    default:
+      defaultArgs.id ||
+      generateId({
+        prestring: "_dispatcher",
+        useAsVar: true,
+      }),
     type: "str",
     dest: "id",
   });
@@ -203,7 +212,7 @@ export async function readInArgs(
     help:
       'Specify the Logger Level of the Dispatcher. Defaults to "info". Valid values are: ' +
       LoggerLevels.join(", "),
-    default: "info",
+    default: defaultArgs.dispatcherLogLevel || "info",
     type: "str",
     dest: "dispatcherLogLevel",
   });
@@ -224,7 +233,7 @@ export async function readInArgs(
 
   parser.add_argument("-d", "--delay", {
     help: 'Adds an delay, which will be waited, after the system connected. Parmeter is provided in [s]. Defaults to "2"',
-    default: 2,
+    default: typeof defaultArgs.delay === "number" ? defaultArgs.delay : 2,
     type: "float",
     dest: "delay",
   });
@@ -233,7 +242,7 @@ export async function readInArgs(
     help:
       'Specify the Logger Level of the Communication. Defaults to "info". Valid values are: ' +
       LoggerLevels.join(", "),
-    default: "info",
+    default: defaultArgs.communicationLogLevel || "info",
     type: "str",
     dest: "communicationLogLevel",
   });
@@ -258,12 +267,17 @@ export async function readInArgs(
     delete args.channelParams;
   }
 
-  args.skipLoadingConfig = Array.isArray(args.skipLoadingConfig);
-  args.profile = Array.isArray(args.profile);
-  args.logToFile = Array.isArray(args.logToFile);
-  args.forceUsingSelectors = Array.isArray(args.forceUsingSelectors);
-  args.useBaseServices = !Array.isArray(args.useBaseServices);
-  args.preventVarifiedNames = Array.isArray(args.preventVarifiedNames);
+  args.skipLoadingConfig =
+    defaultArgs.skipLoadingConfig || Array.isArray(args.skipLoadingConfig);
+  args.profile = defaultArgs.profile || Array.isArray(args.profile);
+  args.logToFile = defaultArgs.logToFile || Array.isArray(args.logToFile);
+  args.forceUsingSelectors =
+    defaultArgs.forceUsingSelectors || Array.isArray(args.forceUsingSelectors);
+  args.useBaseServices =
+    defaultArgs.useBaseServices || !Array.isArray(args.useBaseServices);
+  args.preventVarifiedNames =
+    defaultArgs.preventVarifiedNames ||
+    Array.isArray(args.preventVarifiedNames);
 
   return Object.assign(args, forcedArgs);
 }
@@ -279,33 +293,38 @@ export async function readInArgs(
 export async function runNopeBackend(
   _args: Partial<RunArgs> = {}
 ): Promise<INopePackageLoader> {
-  let opts: {
-    params: string | number;
-  };
-
   // Default Settings
   const _defaultSettings: RunArgs = deepClone(DEFAULT_SETTINGS);
   // Use a different ID.
   _defaultSettings.id = generateId();
 
-  const args = Object.assign(_defaultSettings, _args);
+  let args = Object.assign(_defaultSettings, _args);
+  let configOfFile: IConfigFile = {
+    config: _defaultSettings,
+    connections: [],
+    functions: [],
+    packages: [],
+  };
+  try {
+    // Try to read in the default config file provided in the Settings.
+    configOfFile = JSON.parse(
+      await readFile(args.file, {
+        encoding: "utf-8",
+      })
+    );
+
+    delete configOfFile.config.file;
+
+    // Update the arguments.
+    args = Object.assign(_defaultSettings, configOfFile.config || {}, _args);
+    configOfFile.connections = configOfFile.connections || [];
+  } catch (error) {}
 
   if (args.channel === "io-server") {
     args.skipLoadingConfig = true;
   }
 
   const closeCallbacks = [];
-
-  try {
-    // Try to read in the default config file.
-    opts = JSON.parse(
-      await readFile("./nopeconfig.json", {
-        encoding: "utf-8",
-      })
-    );
-  } catch (error) {
-    opts = {} as any;
-  }
 
   if (LoggerLevels.includes(args.log)) {
     setGlobalLoggerLevel(args.log);
@@ -395,15 +414,15 @@ export async function runNopeBackend(
   });
 
   // Assign the Default Setting for the Channel.
-  opts.params = layerDefaultParameters[args.channel];
+  let connectionParameters = layerDefaultParameters[args.channel];
 
   if (args.channelParams != "not-provided") {
     try {
       try {
         // We try to parse the data.
-        opts.params = JSON.parse(args.channelParams);
+        connectionParameters = JSON.parse(args.channelParams);
       } catch (e) {
-        opts.params = JSON.parse('"' + args.channelParams + '"');
+        connectionParameters = JSON.parse('"' + args.channelParams + '"');
       }
     } catch (e) {
       logger.error(
@@ -421,7 +440,7 @@ export async function runNopeBackend(
       {
         communicator: getLayer(
           args.channel,
-          opts.params,
+          connectionParameters,
           args.communicationLogLevel
         ),
         logger: getNopeLogger("dispatcher", args.dispatcherLogLevel),
@@ -437,15 +456,39 @@ export async function runNopeBackend(
       }
     );
 
+    // Iterate over the additional Layers to connect.
+    for (const item of configOfFile.connections) {
+      switch (item.name) {
+        case "io-client":
+        case "io-host":
+        case "mqtt":
+          addLayer(
+            loader.dispatcher.communicator,
+            item.name,
+            item.url,
+            item.log,
+            item.considerConnection,
+            item.forwardData
+          );
+          break;
+        case "event":
+          break;
+        default:
+          throw Error("Using unkown Connection :(");
+      }
+    }
+
     // Add the Dispatcher
     closeCallbacks.push(async () => {
       await loader.dispatcher.dispose();
     });
 
+    logger.info(`Waiting for the Dispatcher to connect.`);
+    await loader.dispatcher.communicator.connected.waitFor();
+
     // If required load all Packages.
     if (!args.skipLoadingConfig) {
       // Try to load the Modules.
-
       if (args.delay > 0) {
         logger.info(`Waiting ${args.delay} [s] to get all information.`);
         await sleep(args.delay * 1000);
@@ -495,7 +538,31 @@ export async function main(
     console.log("\n\n");
   }
 
-  const args = await readInArgs(additionalArguments, forcedArgs);
+  let args = await readInArgs(additionalArguments, forcedArgs);
+
+  let configOfFile: IConfigFile = {
+    config: deepClone(DEFAULT_SETTINGS),
+    connections: [],
+    functions: [],
+    packages: [],
+  };
+  try {
+    // Try to read in the default config file provided in the Settings.
+    configOfFile = JSON.parse(
+      await readFile(args.file, {
+        encoding: "utf-8",
+      })
+    );
+
+    delete configOfFile.config.file;
+
+    args = await readInArgs(
+      additionalArguments,
+      forcedArgs,
+      configOfFile.config || {}
+    );
+  } catch (error) {}
+
   return await runNopeBackend(args);
 }
 

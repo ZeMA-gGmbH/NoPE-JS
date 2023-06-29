@@ -11,23 +11,17 @@ import * as inquirer from "inquirer";
 import "reflect-metadata";
 import { start } from "repl";
 import {
-  getLayer,
   layerDefaultParameters,
   validLayers,
-} from "../communication/getLayer.nodejs";
-import { getDispatcher } from "../dispatcher/getDispatcher";
+} from "../communication/addLayer.nodejs";
 import { dynamicSort } from "../helpers/arrayMethods";
-import { objectToMap, SPLITCHAR } from "../helpers/objectMethods";
+import { SPLITCHAR } from "../helpers/objectMethods";
 import { convertPath } from "../helpers/path";
 import { padString, replaceAll } from "../helpers/stringMethods";
 import { createInteractiveMenu } from "../index.nodejs";
 import { getNopeLogger } from "../logger/index.browser";
 import { LoggerLevels } from "../logger/nopeLogger";
-import {
-  ICommunicationBridge,
-  INopeModuleDescription,
-  INopeObserver,
-} from "../types/nope";
+import { INopeModuleDescription, INopeObserver } from "../types/nope";
 import main from "./runNopeBackend";
 
 inquirer.registerPrompt("search-list", require("inquirer-search-list"));

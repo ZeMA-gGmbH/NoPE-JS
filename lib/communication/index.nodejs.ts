@@ -11,5 +11,12 @@
 import * as layers from "./layers/index.nodejs";
 
 export { Bridge } from "./bridge";
-export { getLayer, validLayers } from "./getLayer.nodejs";
+export { getLayer } from "./getLayer.nodejs";
+export {
+  addLayer,
+  validLayers,
+  layerDefaultParameters,
+  validLayerOrMirror,
+  validLayerParameters,
+} from "./addLayer.nodejs";
 export { layers };

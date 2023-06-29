@@ -28,7 +28,7 @@ export class IoSocketClientLayer extends EventCommunicationInterface {
     super(
       // As event Emitter, we provide the IO-Client.
       connect(uri.startsWith("http://") ? uri : "http://" + uri) as any,
-      defineNopeLogger(logger, "core.mirror.io"),
+      defineNopeLogger(logger, "core.layer.io"),
       false
     );
 

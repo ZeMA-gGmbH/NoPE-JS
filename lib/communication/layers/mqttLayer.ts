@@ -120,6 +120,7 @@ export class MQTTLayer implements ICommunicationInterface {
 
     this._cbs = new Map();
     this._logger = defineNopeLogger(logger, "core.layer.mqtt");
+    this._logger.info("connecting to:", this.uri);
 
     this.considerConnection = true;
     this.id = generateId();

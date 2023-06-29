@@ -11,13 +11,19 @@ import { sleep } from "../helpers/async";
 import { createFile, listFiles } from "../helpers/fileMethods";
 import { determineDifference } from "../helpers/setMethods";
 import {
+  deepClone,
   getCentralDecoratedContainer,
   parseWithFunctions,
   stringifyWithFunctions,
 } from "../index.browser";
-import { getNopeLogger } from "../logger/getLogger";
+import { ValidLoggerDefinition, getNopeLogger } from "../logger/getLogger";
 import { IPackageDescription } from "../types/nope/nopePackage.interface";
 import { INopePackageLoader } from "../types/nope/nopePackageLoader.interface";
+import { DEFAULT_SETTINGS } from "../cli/runNopeBackend";
+import {
+  validLayerOrMirror,
+  validLayerParameters,
+} from "../communication/index.nodejs";
 
 const logger = getNopeLogger("helper-load-packages");
 
@@ -29,9 +35,17 @@ export interface IPackageConfig extends Partial<IPackageDescription<any>> {
 export interface IConfigFile {
   functions: {
     path: string;
-    functions: [];
+    functions: string[];
   }[];
   packages: IPackageConfig[];
+  connections: {
+    name: validLayerOrMirror;
+    url: string;
+    log: ValidLoggerDefinition;
+    considerConnection: boolean;
+    forwardData: boolean;
+  }[];
+  config: any;
 }
 
 /**
@@ -124,16 +138,22 @@ export async function writeDefaultConfig(
     };
   });
 
-  await createFile(
-    filename,
-    stringifyWithFunctions(
-      {
-        functions,
-        packages,
-      },
-      4
-    )
-  );
+  const config = deepClone(DEFAULT_SETTINGS);
+
+  config.channelParams = "localhost:7000";
+  config.channel = "event";
+
+  delete config.id;
+
+  const file: IConfigFile = {
+    functions,
+    packages,
+    // Export the configuration
+    config,
+    connections: [],
+  };
+
+  await createFile(filename, stringifyWithFunctions(file, 4));
 }
 
 /**
@@ -151,6 +171,8 @@ export async function loadPackages(
   let data: IConfigFile = {
     functions: [],
     packages: [],
+    connections: [],
+    config: {},
   };
 
   try {
@@ -240,6 +262,8 @@ export async function loadFunctions(
   let data: IConfigFile = {
     functions: [],
     packages: [],
+    connections: [],
+    config: {},
   };
 
   try {

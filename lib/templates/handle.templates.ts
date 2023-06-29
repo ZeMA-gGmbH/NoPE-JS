@@ -97,7 +97,7 @@ export interface IProjectFile {
     repo: string;
     created: boolean;
   };
-  currentNopeVersion: currentNopeVersion;
+  currentNopeVersion: typeof currentNopeVersion;
 }
 
 export function generateDefaultProject(): IProjectFile {

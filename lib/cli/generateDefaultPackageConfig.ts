@@ -14,11 +14,20 @@ import {
   stringifyWithFunctions,
 } from "../helpers/jsonMethods";
 import { IConfigFile, writeDefaultConfig } from "../loader/loadPackages";
-import { getNopeLogger } from "../logger/getLogger";
+import {
+  ValidLoggerDefinition,
+  getNopeLogger,
+  LoggerLevel,
+  LoggerLevels,
+} from "../logger/index.nodejs";
 
 import * as inquirer from "inquirer";
 import { createInteractiveMenu } from "../helpers/cli";
 import { createFile } from "../helpers/fileMethods";
+import {
+  layerDefaultParameters,
+  validLayerOrMirror,
+} from "../communication/index.nodejs";
 
 inquirer.registerPrompt("search-checkbox", require("inquirer-search-checkbox"));
 
@@ -306,6 +315,120 @@ export async function reduceConfiguration(
           },
         ],
         name: "packages",
+      },
+      {
+        type: "menu",
+        value: "connection",
+        items: [
+          {
+            name: "add connection",
+            value: "add-connection",
+            type: "item",
+            async onSelect() {
+              const name: Omit<validLayerOrMirror, "event"> = (
+                await inquirer.prompt({
+                  type: "search-list",
+                  name: "layer",
+                  message: "Please select the layer:",
+                  choices: Object.getOwnPropertyNames(layerDefaultParameters),
+                })
+              ).layer;
+
+              console.log(
+                "Please provide the required URL. Please use '" +
+                  layerDefaultParameters[name as any] +
+                  "' as example."
+              );
+
+              const url = (
+                await inquirer.prompt([
+                  {
+                    type: "input",
+                    message: "Please enter valid JSON.",
+                    name: "url",
+                  },
+                ])
+              ).url;
+
+              const wantToLog = (
+                await inquirer.prompt({
+                  type: "confirm",
+                  name: "result",
+                  message: "Do you want to have a logger for the Layer?",
+                })
+              ).result;
+
+              let log: ValidLoggerDefinition = false;
+
+              if (wantToLog) {
+                log = (
+                  await inquirer.prompt({
+                    type: "list",
+                    name: "result",
+                    message: "Please select the packages to use.",
+                    choices: LoggerLevels,
+                  })
+                ).result;
+              }
+
+              const considerConnection = (
+                await inquirer.prompt({
+                  type: "confirm",
+                  name: "result",
+                  message:
+                    "Do you want to consider that layer as base Layer. If 'yes', the Dispatcher will wait until the Layer is connected before autostarting.",
+                })
+              ).result;
+
+              const forwardData = (
+                await inquirer.prompt({
+                  type: "confirm",
+                  name: "result",
+                  message:
+                    "Do you want to forward data of other layers to this layer?",
+                })
+              ).result;
+
+              data.connections.push({
+                name: name as any,
+                url,
+                considerConnection,
+                log,
+                forwardData,
+              });
+
+              // Store the config file
+              await createFile(filename, stringifyWithFunctions(data, 4));
+            },
+          },
+          {
+            name: "select enabled connections",
+            value: "select-connections",
+            type: "item",
+            async onSelect() {
+              const connections = (
+                await inquirer.prompt({
+                  type: "search-checkbox",
+                  name: "result",
+                  message: "Please select the enabled packages",
+                  choices: data.connections.map((item, index) => {
+                    return {
+                      key: index,
+                      name: item.name + ": " + item.url.toString(),
+                      value: item,
+                      checked: true,
+                    };
+                  }),
+                })
+              ).result;
+              data.connections = connections;
+
+              // Store the config file
+              await createFile(filename, stringifyWithFunctions(data, 4));
+            },
+          },
+        ],
+        name: "connections",
       },
     ],
     {

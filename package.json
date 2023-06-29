@@ -1,10 +1,11 @@
 {
-  "name": "nope-js-browser",
+  "name": "nope-js-node",
   "version": "1.7.5",
-  "description": "NoPE Runtime for the Browser. For nodejs please use nope-js-node",
+  "description": "NoPE Runtime for Nodejs. For Browser-Support please use nope-browser",
   "files": [
-    "build/**/*",
-    "dist-browser/**/*"
+    "dist-nodejs/**/*",
+    "lib/**/*",
+    "bin/*"
   ],
   "scripts": {
     "test": "mocha",
@@ -51,7 +52,6 @@
   "dependencies": {
     "argparse": "^2.0.1",
     "async": "^3.2.4",
-    "comment-parser": "^1.3.1",
     "cors": "^2.8.5",
     "handlebars": "^4.7.7",
     "inquirer": "^8.2.0",
@@ -61,23 +61,16 @@
     "inversify": "^6.0.1",
     "js-logger": "^1.6.1",
     "lodash": "^4.17.21",
-    "mathjs": "^11.5.0",
     "mqtt": "^4.3.7",
     "mqtt-pattern": "^2.0.0",
-    "npm": "^9.2.0",
-    "npx": "^10.2.2",
     "reflect-metadata": "^0.1.13",
-    "run-script-os": "^1.1.6",
     "rxjs": "^7.8.0",
     "simple-git": "^3.15.1",
     "socket.io": "^4.5.4",
     "socket.io-client": "^4.5.4",
     "superagent": "^8.0.6",
-    "ts-morph": "^17.0.1",
-    "typescript-json-schema": "^0.55.0",
     "uuid": "^9.0.0",
-    "v8-profiler-next": "^1.9.0",
-    "websocket-stream": "^5.5.2"
+    "v8-profiler-next": "^1.9.0"
   },
   "devDependencies": {
     "@types/ace": "^0.0.48",
@@ -101,9 +94,9 @@
     "npm-check-updates": "^16.6.2",
     "onchange": "^7.1.0",
     "prettier": "2.8.1",
+    "run-script-os": "^1.1.6",
     "typedoc": "^0.24.4",
     "typedoc-github-wiki-theme": "^1.1.0",
-    "typedoc-plugin-markdown": "^4.0.0-next.7",
     "typedoc-plugin-mermaid": "^1.10.0",
     "typescript": "^4.9.4",
     "webpack": "^4.46.0",
@@ -112,6 +105,8 @@
   "prettier": {
     "arrowParens": "always"
   },
-  "browser": "build/nope.js",
-  "main": "build/nope.js"
+  "bin": {
+    "nope-js": "./bin/nope"
+  },
+  "main": "dist-nodejs/index.nodejs.js"
 }

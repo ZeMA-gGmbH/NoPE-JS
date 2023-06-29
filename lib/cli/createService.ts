@@ -14,7 +14,7 @@ import { join } from "path";
 import {
   layerDefaultParameters,
   validLayers,
-} from "../communication/getLayer.nodejs";
+} from "../communication/addLayer.nodejs";
 import { createFile } from "../helpers/fileMethods";
 import { IConfigFile } from "../loader/loadPackages";
 import { getNopeLogger } from "../logger/getLogger";
@@ -125,6 +125,8 @@ export async function createService(
     const config: IConfigFile = {
       functions: [],
       packages: [],
+      config: {},
+      connections: [],
     };
 
     const modeSelection = [];
@@ -467,6 +469,8 @@ node {{{pathToFolder}}}\\index.js`),
                 path: _package.path,
               },
             ],
+            config: {},
+            connections: [],
           };
 
           promises.push(

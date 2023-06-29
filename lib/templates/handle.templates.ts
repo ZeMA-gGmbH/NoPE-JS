@@ -126,11 +126,7 @@ export function generateDefaultProject(): IProjectFile {
  */
 async function _getProjectTemplates(type: "python" | "typescript") {
   const files = await listFiles(join(dirName, "projects", type), ".handlebars");
-  const projectFiles = files.filter((item) => {
-    return !item.includes("modules" + FOLDER_SPLIT);
-  });
-
-  return projectFiles;
+  return files;
 }
 
 async function _getProjectFilesToCopy(type: "python" | "typescript") {

@@ -1,6 +1,6 @@
 {
   "name": "nope-js-node",
-  "version": "1.7.6",
+  "version": "1.7.7",
   "description": "NoPE Runtime for Nodejs. For Browser-Support please use nope-browser",
   "files": [
     "dist-nodejs/**/*",

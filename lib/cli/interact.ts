@@ -458,7 +458,7 @@ export async function interact(
                   );
 
                   console.log(
-                    "Please enter the parameters based on the schema"
+                    "Please enter the parameters based on the schema."
                   );
                 } else {
                   console.log(
@@ -469,6 +469,10 @@ export async function interact(
                     "Please enter the parameters (which is hard now ...) for the Method. "
                   );
                 }
+
+                console.log(
+                  "The tool expects an list: '[]' in JSON form. Every Parameter is an item in the list. Make shure you are allways entering an list!"
+                );
 
                 const parameters = await getJsonInput();
 

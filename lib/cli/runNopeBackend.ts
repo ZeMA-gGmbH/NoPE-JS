@@ -305,20 +305,23 @@ export async function runNopeBackend(
     functions: [],
     packages: [],
   };
-  try {
-    // Try to read in the default config file provided in the Settings.
-    configOfFile = JSON.parse(
-      await readFile(args.file, {
-        encoding: "utf-8",
-      })
-    );
 
-    delete configOfFile.config.file;
+  if (args.channel !== "io-server") {
+    try {
+      // Try to read in the default config file provided in the Settings.
+      configOfFile = JSON.parse(
+        await readFile(args.file, {
+          encoding: "utf-8",
+        })
+      );
 
-    // Update the arguments.
-    args = Object.assign(_defaultSettings, configOfFile.config || {}, _args);
-    configOfFile.connections = configOfFile.connections || [];
-  } catch (error) {}
+      delete configOfFile.config.file;
+
+      // Update the arguments.
+      args = Object.assign(_defaultSettings, configOfFile.config || {}, _args);
+      configOfFile.connections = configOfFile.connections || [];
+    } catch (error) {}
+  }
 
   if (args.channel === "io-server") {
     args.skipLoadingConfig = true;
@@ -456,25 +459,27 @@ export async function runNopeBackend(
       }
     );
 
-    // Iterate over the additional Layers to connect.
-    for (const item of configOfFile.connections) {
-      switch (item.name) {
-        case "io-client":
-        case "io-host":
-        case "mqtt":
-          addLayer(
-            loader.dispatcher.communicator,
-            item.name,
-            item.url,
-            item.log,
-            item.considerConnection,
-            item.forwardData
-          );
-          break;
-        case "event":
-          break;
-        default:
-          throw Error("Using unkown Connection :(");
+    if (args.channel !== "io-server") {
+      // Iterate over the additional Layers to connect.
+      for (const item of configOfFile.connections) {
+        switch (item.name) {
+          case "io-client":
+          case "io-host":
+          case "mqtt":
+            addLayer(
+              loader.dispatcher.communicator,
+              item.name,
+              item.url,
+              item.log,
+              item.considerConnection,
+              item.forwardData
+            );
+            break;
+          case "event":
+            break;
+          default:
+            throw Error("Using unkown Connection :(");
+        }
       }
     }
 

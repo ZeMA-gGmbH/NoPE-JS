@@ -365,7 +365,7 @@ export async function reduceConfiguration(
                   await inquirer.prompt({
                     type: "list",
                     name: "result",
-                    message: "Please select the packages to use.",
+                    message: "Please select the logger level.",
                     choices: LoggerLevels,
                   })
                 ).result;
@@ -396,9 +396,6 @@ export async function reduceConfiguration(
                 log,
                 forwardData,
               });
-
-              // Store the config file
-              await createFile(filename, stringifyWithFunctions(data, 4));
             },
           },
           {

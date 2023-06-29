@@ -561,5 +561,7 @@ Inital commit, which is working with the browser
   - Modifying:
     - Implementing a Speedhack in the `RpcManager` during Perform call.
     - Adding the Feature to skip heartbeats if the system is in debugging.
+
+# 1.7.7:
   - Fixing:
     - Fixing interaction tool. 

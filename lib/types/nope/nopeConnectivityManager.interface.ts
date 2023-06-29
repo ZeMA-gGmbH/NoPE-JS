@@ -1,15 +1,12 @@
 /**
  * @author Martin Karkowski
  * @email m.karkowski@zema.de
- * @create date 2022-01-04 12:44:25
- * @modify date 2022-01-04 12:44:25
  * @desc [description]
  */
 
 import { ValidLoggerDefinition } from "../../logger/getLogger";
 import { ICommunicationBridge } from "./nopeCommunication.interface";
 import { IMapBasedMergeData } from "./nopeHelpers.interface";
-import { IVersion } from "./nopeModule.interface";
 import { INopeObservable } from "./nopeObservable.interface";
 
 /**
@@ -140,6 +137,10 @@ export interface INopeStatusInfo {
    * Field containing the Plugins
    */
   plugins: Array<string>;
+  /**
+   * Flag, to show that a system is in debugging mode.
+   */
+  isDebugging?: boolean;
 }
 
 export type INopeINopeConnectivityTimeOptions = {
@@ -226,6 +227,11 @@ export type INopeINopeConnectivityOptions = {
    * Flag to force the Master. If set to null "default" -> the auto selection will be used.
    */
   isMaster?: boolean;
+
+  /**
+   * Flag to be toggled if a system is in debug mode.
+   */
+  isDebugging?: boolean;
 };
 
 /**

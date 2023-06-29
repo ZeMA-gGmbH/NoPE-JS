@@ -452,18 +452,33 @@ export async function interact(
 
                 const description =
                   dispatcher.rpcManager.services.simplified.get(service);
-                const text = replaceAll(
-                  JSON.stringify(description.schema, undefined, 4),
-                  "\n",
-                  "\n\t"
-                );
-                console.log(
-                  `The schema of "${service}" is definend as follows:\n\t${text}`
-                );
 
-                console.log("Please enter the paramters based on the schema");
+                if (description.schema) {
+                  const text = replaceAll(
+                    JSON.stringify(description.schema, undefined, 4),
+                    "\n",
+                    "\n\t"
+                  );
+                  console.log(
+                    `The schema of "${service}" is definend as follows:\n\t${text}`
+                  );
+
+                  console.log(
+                    "Please enter the parameters based on the schema"
+                  );
+                } else {
+                  console.log(
+                    "The Service you have selected did not provide any schema. That is bad practice. Please contact the Author :("
+                  );
+
+                  console.log(
+                    "Please enter the parameters (which is hard now ...) for the Method. "
+                  );
+                }
+
                 const parameters = await getJsonInput();
 
+                console.log("You have provided the following parameters.");
                 console.log(parameters);
 
                 try {

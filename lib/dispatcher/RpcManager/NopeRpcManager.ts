@@ -8,7 +8,7 @@
 
 import { ILogger } from "js-logger";
 import { NopeEventEmitter } from "../../eventEmitter/index";
-import { isAsyncFunction } from "../../helpers/async";
+import { isAsyncFunction, sleep } from "../../helpers/async";
 import { generateId } from "../../helpers/idMethods";
 import { MapBasedMergeData } from "../../helpers/mergedData";
 import { SPLITCHAR } from "../../helpers/objectMethods";
@@ -364,9 +364,15 @@ export class NopeRpcManager<T extends IServiceOptions = IServiceOptions>
           // Unsubscribe from Task-Cancelation
           observer.unsubscribe();
 
+          // Delte the Task.
+          _this._runningExternalRequestedTasks.delete(data.taskId);
+
           // Now throw the Error again.
           throw error;
         }
+
+        // Delte the Task.
+        _this._runningExternalRequestedTasks.delete(data.taskId);
 
         // Define the Result message
         const result: IRpcResponseMsg = {
@@ -898,6 +904,46 @@ export class NopeRpcManager<T extends IServiceOptions = IServiceOptions>
     params: any[],
     options: ValidCallOptions = {}
   ): INopePromise<T> {
+    // Our implemented Shortcut to speed things up.
+    if (
+      this.services.amountOf.get(serviceName) === 1 &&
+      this._registeredServices.has(serviceName)
+    ) {
+      const func = this._registeredServices.get(serviceName).func;
+      const perhapsPromise = func(...params);
+      const isAsync = isAsyncFunction(func);
+
+      // Define a simple promise.
+      const ret = new NopePromise<T>((resolve, reject) => {
+        if (options.timeout > 0) {
+          setTimeout(
+            reject,
+            options.timeout,
+            new Error(
+              `TIMEOUT. The Service allowed execution time of ${options.timeout.toString()}[ms] has been excided`
+            )
+          );
+        }
+        if (!isAsync) {
+          resolve(perhapsPromise);
+        } else {
+          perhapsPromise.then(resolve).catch(reject);
+        }
+      });
+
+      // Assign the cancel function.
+      ret.cancel = (reason) => {
+        if (
+          isAsync &&
+          typeof (perhapsPromise as NopePromise<any>).cancel == "function"
+        ) {
+          (perhapsPromise as NopePromise<any>).cancel(reason);
+        }
+      };
+
+      return ret;
+    }
+
     // Get a Call Id
     const _taskId = generateId();
     const _this = this;

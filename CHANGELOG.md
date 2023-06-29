@@ -553,3 +553,11 @@ Inital commit, which is working with the browser
 # 1.7.5:
   - Modifying: 
     - Enabling lazy topics matching in Pub-Sub-System again
+
+# 1.7.6:
+  - Modifying:
+    - Implementing a Speedhack in the `RpcManager` during Perform call.
+    - Adding the Feature to skip heartbeats if the system is in debugging.
+
+  - Fixing:
+    - Fixing interaction tool. 

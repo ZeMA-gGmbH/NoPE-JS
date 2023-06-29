@@ -449,7 +449,11 @@ export async function interact(
 
                 if (description.schema) {
                   const text = replaceAll(
-                    JSON.stringify(description.schema, undefined, 4),
+                    JSON.stringify(
+                      description.schema?.inputs || [],
+                      undefined,
+                      4
+                    ),
                     "\n",
                     "\n\t"
                   );
@@ -458,7 +462,7 @@ export async function interact(
                   );
 
                   console.log(
-                    "Please enter the parameters based on the schema."
+                    "Please enter the parameters based on the schema as list!"
                   );
                 } else {
                   console.log(
@@ -525,6 +529,10 @@ export async function interact(
                 console.log(`The schema of "${service}" is not know.`);
 
                 console.log("Please enter the paramters based on the schema");
+
+                console.log(
+                  "The tool expects an list: '[]' in JSON form. Every Parameter is an item in the list. Make shure you are allways entering an list!"
+                );
 
                 const parameters = await getJsonInput();
 
@@ -618,7 +626,7 @@ export async function interact(
                         logger.error(e);
                       }
                     } else {
-                      logger.info(
+                      console.log(
                         "Please Enter the parameters. Enter them as JSON-Array:"
                       );
                       console.log(
@@ -629,6 +637,10 @@ export async function interact(
                           undefined,
                           4
                         )
+                      );
+
+                      console.log(
+                        "The tool expects an list: '[]' in JSON form. Every Parameter is an item in the list. Make shure you are allways entering an list!"
                       );
 
                       const input = await getJsonInput();

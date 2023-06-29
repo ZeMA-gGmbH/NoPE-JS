@@ -545,28 +545,30 @@ export async function main(
 
   let args = await readInArgs(additionalArguments, forcedArgs);
 
-  let configOfFile: IConfigFile = {
-    config: deepClone(DEFAULT_SETTINGS),
-    connections: [],
-    functions: [],
-    packages: [],
-  };
-  try {
-    // Try to read in the default config file provided in the Settings.
-    configOfFile = JSON.parse(
-      await readFile(args.file, {
-        encoding: "utf-8",
-      })
-    );
+  if (args.channel !== "io-server") {
+    let configOfFile: IConfigFile = {
+      config: deepClone(DEFAULT_SETTINGS),
+      connections: [],
+      functions: [],
+      packages: [],
+    };
+    try {
+      // Try to read in the default config file provided in the Settings.
+      configOfFile = JSON.parse(
+        await readFile(args.file, {
+          encoding: "utf-8",
+        })
+      );
 
-    delete configOfFile.config.file;
+      delete configOfFile.config.file;
 
-    args = await readInArgs(
-      additionalArguments,
-      forcedArgs,
-      configOfFile.config || {}
-    );
-  } catch (error) {}
+      args = await readInArgs(
+        additionalArguments,
+        forcedArgs,
+        configOfFile.config || {}
+      );
+    } catch (error) {}
+  }
 
   return await runNopeBackend(args);
 }

@@ -565,3 +565,9 @@ Inital commit, which is working with the browser
 # 1.7.7:
   - Fixing:
     - Fixing interaction tool. 
+
+# 1.7.7:
+  - Modifying:
+    - Updating Texts of the interaction tool. 
+  - Fixing:
+    - during run the option 'io-server' skips considering the config file.

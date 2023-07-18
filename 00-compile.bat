@@ -5,8 +5,8 @@ SETLOCAL
 echo Compiling Backend
 
 REM Add the Node Options for SSL these are requrired since Node v.17
-REM set NODE_OPTIONS=--openssl-legacy-provider
-REM call $env:NODE_OPTIONS="--openssl-legacy-provider"
+set NODE_OPTIONS=--openssl-legacy-provider
+$env:NODE_OPTIONS="--openssl-legacy-provider"
 
 
 (npm run-script prettier-format) && (

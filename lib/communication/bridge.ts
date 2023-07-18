@@ -158,36 +158,44 @@ export class Bridge implements ICommunicationBridge {
   }
 
   protected _on(event: Eventname, cb): void {
-    // Subscribe on the Event
-    this._internalEmitter.setMaxListeners(
-      this._internalEmitter.getMaxListeners() + 1
-    );
-
-    if (this._logger?.enabledFor(DEBUG) && event !== "statusChanged") {
-      this._logger.debug("subscribe to", event);
-
-      // If logging is enable, we subscribe to that.
-      const _this = this;
-      this._internalEmitter.on(event, (data) => {
-        _this._logger.debug("received", event, data);
-      });
-    }
-    this._internalEmitter.on(event, cb);
-
     // Store the Unspecific callbacks
     if (!this._callbacks.has(event)) {
       this._callbacks.set(event, [cb]);
+
+      // We only are going to subscribe, if there is no log listener.
+      if (this._logger?.enabledFor(DEBUG) && event !== "statusChanged") {
+        this._logger.debug("subscribe to", event);
+
+        // Rise the max listeners
+        this._internalEmitter.setMaxListeners(
+          this._internalEmitter.getMaxListeners() + 1
+        );
+
+        // If logging is enable, we subscribe to that.
+        const _this = this;
+
+        this._internalEmitter.on(event, (data) => {
+          _this._logger.debug("received", event, data);
+        });
+      }
+
+      // Iterate over the Layers and on the connected Layers,
+      // subscribe the methods.
+      for (const data of this._layers.values()) {
+        if (data.layer.connected.getContent()) {
+          this._subscribeToCallback(data.layer, event, data.forwardData);
+        }
+      }
     } else {
       this._callbacks.get(event).push(cb);
     }
 
-    // Iterate over the Layers and on the connected Layers,
-    // subscribe the methods.
-    for (const data of this._layers.values()) {
-      if (data.layer.connected.getContent()) {
-        this._subscribeToCallback(data.layer, event, data.forwardData);
-      }
-    }
+    // Rise the max listeners
+    this._internalEmitter.setMaxListeners(
+      this._internalEmitter.getMaxListeners() + 1
+    );
+    // Subscribe
+    this._internalEmitter.on(event, cb);
   }
 
   protected _emit(

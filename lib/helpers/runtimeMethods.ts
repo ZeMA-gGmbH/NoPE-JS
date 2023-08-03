@@ -48,8 +48,11 @@ export const callDirect = (callback: (...args) => void, ...args) => {
 
 export const RUNNINGINNODE = _runningInNode;
 export const RUNNINGINWINDOWS = _runningInNode
-  ? require("os").type() != "Linux"
+  ? process.platform === "win32"
   : false;
 export const RUNNINGINLINUX = _runningInNode
-  ? require("os").type() === "Linux"
+  ? process.platform === "linux"
+  : false;
+export const RUNNINGINOSX = _runningInNode
+  ? process.platform === "darwin"
   : false;

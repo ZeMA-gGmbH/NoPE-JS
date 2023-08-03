@@ -6,7 +6,7 @@
 import { ArgumentParser } from "argparse";
 import { join, resolve } from "path";
 import "reflect-metadata";
-import { createFile } from "../helpers/fileMethods";
+import { convertPathToOsPath, createFile } from "../helpers/fileMethods";
 import {
   getCentralDecoratedContainer,
   IServiceOptions,
@@ -332,10 +332,9 @@ export async function uploadUi(args: Partial<UploadArgs>) {
 
     if (newest) {
       try {
-        const _file = replaceAll(
-          settingsToUse.uri + "/" + newest.path,
-          "\\",
-          "/"
+        const _file = join(
+          convertPathToOsPath(settingsToUse.uri),
+          convertPathToOsPath(newest.path)
         );
         return (await superagent.get(_file)).body;
       } catch (e) {

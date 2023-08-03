@@ -21,12 +21,46 @@ import { mkdir, readdir, rmdir, unlink, writeFile } from "fs/promises";
 import { type } from "os";
 import { join } from "path";
 import { promisify } from "util";
+import {
+  RUNNINGINLINUX,
+  RUNNINGINOSX,
+  RUNNINGINWINDOWS,
+} from "./runtimeMethods";
+import { replaceAll } from "./stringMethods";
 
 export const exists = promisify(__exists);
 const _lstat = promisify(lstat);
 
+/**
+ * Helper to determine the Path Seperator.
+ * @returns
+ */
+export function getPathSeparator() {
+  if (RUNNINGINWINDOWS) {
+    return "\\";
+  } else if (RUNNINGINOSX || RUNNINGINLINUX) {
+    return "/";
+  }
+
+  // default to *nix system.
+  return "/";
+}
+
+/**
+ * Helper to convert the Path to an os specific path.
+ * @param path
+ * @returns
+ */
+export function convertPathToOsPath(path: string): string {
+  if (RUNNINGINWINDOWS) {
+    return replaceAll(path, "\\", FOLDER_SPLIT);
+  }
+
+  return replaceAll(path, "/", FOLDER_SPLIT);
+}
+
 // Based on the OS select the Path Element.
-export const FOLDER_SPLIT = type() === "Linux" ? "/" : "\\";
+export const FOLDER_SPLIT = getPathSeparator();
 
 /**
  * Function to create a File
@@ -54,10 +88,7 @@ export async function createFile(
     | "hex"
 ): Promise<string> {
   // Adapt the File Pathes
-  fileName =
-    type() === "Linux"
-      ? fileName.replace(/\\\\/g, "/")
-      : fileName.replace(/\//g, "\\");
+  fileName = convertPathToOsPath(fileName);
 
   // Split the Path into different segements.
   const pathParts = fileName.split(FOLDER_SPLIT);
@@ -81,6 +112,9 @@ export async function createFile(
  * @param options The options to write the file. See original docu: https://nodejs.org/dist/latest-v8.x/docs/api/fs.html#fs_fs_writefile_file_data_options_callback
  */
 export async function createPath(path: string) {
+  // Adapt the File Pathes
+  path = convertPathToOsPath(path);
+
   await mkdir(path, { recursive: true });
   return path;
 }
@@ -96,13 +130,16 @@ export async function createPath(path: string) {
  * Furthermore the Folder Test itself is removed.
  *
  * @export
- * @param {string} dir_path
+ * @param {string} dirPath
  */
-export async function deletePath(dir_path: string): Promise<void> {
-  if (!(await exists(dir_path))) {
+export async function deletePath(dirPath: string): Promise<void> {
+  if (!(await exists(dirPath))) {
     throw new URIError("path doesnt exits.");
   }
-  const _totalPath = dir_path;
+  // Make shure we are using the correct path.
+  dirPath = convertPathToOsPath(dirPath);
+
+  const _totalPath = dirPath;
   /** Sort the Pathes according to their length. For instance:
    * _pathes = ['C:\\Test\\Sub', 'C:\\Test\\Sub\\SubSub']
    *
@@ -129,7 +166,7 @@ export async function deletePath(dir_path: string): Promise<void> {
     await rmdir(_path);
   }
 
-  await rmdir(dir_path);
+  await rmdir(dirPath);
 }
 
 /**
@@ -142,26 +179,26 @@ export function relativePath(
   _dirPath: string,
   _currentPath = process.cwd()
 ): string {
-  return join(_currentPath, _dirPath);
+  return join(convertPathToOsPath(_currentPath), convertPathToOsPath(_dirPath));
 }
 
 /**
  * Returns a List of File-Names.
  *
  * @export
- * @param {string} _dir_path Path where the system should look
+ * @param {string} dirPath Path where the system should look
  * @param {string} [type=''] specified ending of the File. For Instance '.conf'
  * @returns {Array<string>} List containing all Files
  */
-export async function listFiles(
-  _dir_path: string,
-  type = ""
-): Promise<string[]> {
-  if (!exists(_dir_path)) {
+export async function listFiles(dirPath: string, type = ""): Promise<string[]> {
+  // Adapt the Path
+  dirPath = convertPathToOsPath(dirPath);
+
+  if (!exists(dirPath)) {
     throw new URIError("path doesnt exits.");
   }
 
-  const _dirPath = _dir_path;
+  const _dirPath = dirPath;
 
   const _files = new Array<string>();
 
@@ -196,14 +233,17 @@ export async function listFiles(
  * Lists all Subfolders in the given Path
  *
  * @export
- * @param {string} _dir_path Start path
+ * @param {string} dirPath Start path
  * @returns {Array<string>} Array containing all Pathes to the Subfolders
  */
-export async function listFolders(_dir_path: string): Promise<Array<string>> {
-  if (!(await exists(_dir_path))) {
+export async function listFolders(dirPath: string): Promise<Array<string>> {
+  // Adapt the Path
+  dirPath = convertPathToOsPath(dirPath);
+
+  if (!(await exists(dirPath))) {
     throw new URIError("path doesnt exits.");
   }
-  const _dirPath = _dir_path;
+  const _dirPath = dirPath;
 
   const _pathes = new Array<string>();
 
@@ -240,18 +280,21 @@ export async function listFolders(_dir_path: string): Promise<Array<string>> {
  * Internal Function to walk through a directory and
  * call different functions on a found subdir or file.
  *
- * @param {string} dir_path start path
+ * @param {string} dirPath start path
  * @param {(err, data) => void} filecallback function which is called on a file
  * @param {(err, data) => void} foldercallback function which is called on a folder
  */
 async function _walkRecursive(
-  dir_path: string,
+  dirPath: string,
   filecallback: (err, data) => Promise<void>,
   foldercallback: (err, data) => Promise<void>
 ) {
-  for (const name of await readdir(dir_path)) {
+  // Adapt the Path
+  dirPath = convertPathToOsPath(dirPath);
+
+  for (const name of await readdir(dirPath)) {
     // Create the FilePath
-    const filePath = join(dir_path, name);
+    const filePath = join(dirPath, name);
     // Determine the Type
     const stat = await _lstat(filePath);
     if (stat.isFile()) {

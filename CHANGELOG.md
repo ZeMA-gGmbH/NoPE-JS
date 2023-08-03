@@ -575,3 +575,11 @@ Inital commit, which is working with the browser
 # 1.7.9:
   - Fixing:
     - Hotfix for the Bridge. The `on` method was subscribing the events on the layers multiple times.
+
+# 1.7.10
+  - Fixing:
+    - Enable OSX Support for files.
+    - Disposing instances on Shutdown of an instance Manager
+    - Unregistering `properties` and `events` in generic instance, if it is getting disposed.
+  - Adding:
+    - adding function `convertPathToOsPath` to the file methods.

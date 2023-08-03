@@ -1265,6 +1265,15 @@ export class NopeInstanceManager implements INopeInstanceManager {
 
   // See interface description
   public async dispose() {
+    const promises = [];
+
+    for (const [id, data] of this._instances.entries()) {
+      if (!data.manual) {
+        promises.push(data.instance.dispose());
+      }
+    }
+
+    await Promise.all(promises);
     this.instances.dispose();
   }
 }

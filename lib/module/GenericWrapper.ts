@@ -312,12 +312,18 @@ export class NopeGenericWrapper extends NopeBaseModule {
 
   public async dispose(): Promise<void> {
     for (const name in this.dynamicInstanceProperties) {
+      // Unregister all Properties.
+      this._core.dataDistributor.unregister(this[name]);
+
       this.dynamicInstanceProperties[name].dispose();
       // Remove Reference
       delete this[name];
     }
 
     for (const name in this.dynamicInstanceEvents) {
+      // Unregister all Properties.
+      this._core.eventDistributor.unregister(this[name]);
+
       this.dynamicInstanceEvents[name].dispose();
       // Remove Reference
       delete this[name];

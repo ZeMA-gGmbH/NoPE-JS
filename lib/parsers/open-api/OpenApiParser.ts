@@ -10,7 +10,11 @@ import { readFile } from "fs/promises";
 import * as handlebars from "handlebars";
 import { ILogger } from "js-logger";
 import { join, relative } from "path";
-import { createFile, createPath } from "../../helpers/fileMethods";
+import {
+  convertPathToOsPath,
+  createFile,
+  createPath,
+} from "../../helpers/fileMethods";
 import { deepClone } from "../../helpers/objectMethods";
 import { replaceAll } from "../../helpers/stringMethods";
 import { IJsonSchema } from "../../types/IJSONSchema";
@@ -176,10 +180,9 @@ export async function parseModuleToOpenAPI(
 
       for (const imp of imports) {
         const relativDir = relative(fileDir, imp.dir);
-        (method as any)[imp.name] = replaceAll(
-          join(relativDir, imp.fileName),
-          "\\",
-          "/"
+        (method as any)[imp.name] = join(
+          convertPathToOsPath(relativDir),
+          convertPathToOsPath(imp.fileName)
         );
       }
 
